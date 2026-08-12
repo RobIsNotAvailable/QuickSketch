@@ -9,13 +9,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "comments")
 @Data
+@NoArgsConstructor
 public class Comment 
 {
     @Id
@@ -30,9 +33,25 @@ public class Comment
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private Long userId;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sketch_id", nullable = false)
-    private Long sketchId;
+    private Sketch sketch;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns
+    ({
+        @JoinColumn(name = "reply_to_id", referencedColumnName = "id"),
+        @JoinColumn(name = "sketch_id", referencedColumnName = "id", insertable = false, updatable = false)
+    })
+    private Comment replyTo;
+
+    public Comment(String text, User user, Sketch sketch, Comment replyTo) 
+    {
+        this.text = text;
+        this.user = user;
+        this.sketch = sketch;
+        this.replyTo = replyTo;
+    }
 }

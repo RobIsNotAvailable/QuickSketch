@@ -16,10 +16,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "reactions")
 @Data
+@NoArgsConstructor
 public class Reaction 
 {
     @Id
@@ -35,9 +37,9 @@ public class Reaction
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private Long userId;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sketch_id", nullable = false)
-    private Long sketchId;
+    private Sketch sketch;
 }
