@@ -14,7 +14,6 @@ import com.webtech.quicksketch.repository.ReactionRepo;
 import com.webtech.quicksketch.repository.SketchRepo;
 import com.webtech.quicksketch.repository.UserRepo;
 import com.webtech.quicksketch.util.SecurityUtil;
-import com.webtech.quicksketch.util.StringConstants;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +33,8 @@ public class ReactionService
         Long userId = securityUtil.getCurrentUserId();
         Long sketchId = request.sketchId();
 
-        User user = userRepo.findById(userId).orElseThrow(() -> 
-            new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("User")));
-        
-        Sketch sketch = sketchRepo.findById(sketchId).orElseThrow(() -> 
-            new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch")));
+        User user = userRepo.getReferenceById(userId);
+        Sketch sketch = sketchRepo.getReferenceById(sketchId);
 
         Optional<Reaction> existing = repo.findByUserIdAndSketchId(userId, sketchId);
         ReactionType requestType = request.type();

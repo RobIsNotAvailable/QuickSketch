@@ -31,8 +31,7 @@ public class CommentService
     @Transactional
     public CommentResponse comment(CommentRequest request)
     {
-        User user = userRepo.findById(securityUtil.getCurrentUserId()).orElseThrow(() -> 
-            new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("User")));
+        User user = userRepo.getReferenceById(securityUtil.getCurrentUserId());
 
         Sketch sketch = sketchRepo.findById(request.sketchId()).orElseThrow(() -> 
             new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch")));
@@ -60,6 +59,6 @@ public class CommentService
 
     private CommentResponse mapToResponse(Comment comment)
     {
-        return new CommentResponse(comment.getText(), comment.getCreatedAt(), new UserSummaryResponse(comment.getUser().getId(), comment.getUser().getUsername()), comment.getSketch().getId(), comment.getReplyTo().getId());
+        return new CommentResponse(comment.getText(), comment.getCreatedAt(), new UserSummaryResponse(comment.getUser().getId(), comment.getUser().getUsername()), comment.getSketch().getId(), comment.getReplyTo() != null ? comment.getReplyTo().getId() : null);
     }
 }

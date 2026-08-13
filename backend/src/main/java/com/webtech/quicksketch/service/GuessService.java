@@ -32,8 +32,7 @@ public class GuessService
     {
         Long userId = securityUtil.getCurrentUserId();
 
-        User user = userRepo.findById(userId).orElseThrow(() -> 
-            new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("User")));
+        User user = userRepo.getReferenceById(securityUtil.getCurrentUserId());
 
         Sketch sketch = sketchRepo.findById(request.sketchId()).orElseThrow(() -> 
             new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch")));
@@ -56,7 +55,11 @@ public class GuessService
         {
             sketchRepo.markAsCompleted(isCorrect, userId, sketch.getId());
         }
+        else
+        {
+            targetText = null;
+        }
 
-        return new GuessResponse(isCorrect, MAX_GUESSES - guessCount, isCorrect ? targetText : null);
+        return new GuessResponse(isCorrect, MAX_GUESSES - guessCount, targetText);
     }
 }
