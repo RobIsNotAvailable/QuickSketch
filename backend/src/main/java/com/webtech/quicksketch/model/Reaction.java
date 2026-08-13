@@ -42,4 +42,11 @@ public class Reaction
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sketch_id", nullable = false)
     private Sketch sketch;
+
+    public Reaction(ReactionType type, User user, Sketch sketch) 
+    {
+        this.type = type;
+        this.user = user;
+        this.sketch = sketch;
+    }
 }

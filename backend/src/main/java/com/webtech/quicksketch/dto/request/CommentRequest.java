@@ -2,7 +2,7 @@ package com.webtech.quicksketch.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record PostCommentRequest(
+public record CommentRequest(
     @NotBlank(message = "Comment cannot be blank")
     String comment,
 

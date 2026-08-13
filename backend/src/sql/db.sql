@@ -62,17 +62,10 @@ CREATE TABLE comments
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     sketch_id BIGINT NOT NULL REFERENCES sketches(id) ON DELETE CASCADE,
-    reply_to_id BIGINT,
-
-    CONSTRAINT ref_comment_sketch UNIQUE (id, sketch_id),
-
-    CONSTRAINT same_sketch_reply_to
-        FOREIGN KEY (reply_to_id, sketch_id) 
-        REFERENCES comments(id, sketch_id) 
-        ON DELETE CASCADE
+    reply_to_id BIGINT REFERENCES comments(id) ON DELETE CASCADE
 );
 
-CREATE TABLE refresh_token
+CREATE TABLE refresh_tokens
 (
     id BIGSERIAL PRIMARY KEY,
     token VARCHAR(255) NOT NULL,
@@ -88,3 +81,34 @@ CREATE TABLE user_sketches
     completed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (user_id, sketch_id)
 );
+
+CREATE TABLE user_follows
+(
+    follower_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    followed_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    PRIMARY KEY (follower_id, followed_id)
+);
+
+
+CREATE OR REPLACE FUNCTION check_same_sketch_reply()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.reply_to_id IS NOT NULL THEN
+        IF EXISTS
+        (
+            SELECT 1 FROM comments 
+            WHERE id = NEW.reply_to_id 
+              AND sketch_id <> NEW.sketch_id
+        ) THEN
+            RAISE EXCEPTION 'New comment and parent comment must belong to the same sketch.';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER enforce_same_sketch_reply
+BEFORE INSERT OR UPDATE ON comments
+FOR EACH ROW
+EXECUTE FUNCTION check_same_sketch_reply();

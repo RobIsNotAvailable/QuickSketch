@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -40,11 +39,7 @@ public class Comment
     private Sketch sketch;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns
-    ({
-        @JoinColumn(name = "reply_to_id", referencedColumnName = "id"),
-        @JoinColumn(name = "sketch_id", referencedColumnName = "id", insertable = false, updatable = false)
-    })
+    @JoinColumn(name = "reply_to_id")
     private Comment replyTo;
 
     public Comment(String text, User user, Sketch sketch, Comment replyTo) 

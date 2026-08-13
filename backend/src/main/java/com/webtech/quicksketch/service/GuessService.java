@@ -3,6 +3,7 @@ package com.webtech.quicksketch.service;
 import org.springframework.stereotype.Service;
 
 import com.webtech.quicksketch.dto.request.GuessRequest;
+import com.webtech.quicksketch.dto.response.GuessResponse;
 import com.webtech.quicksketch.model.Guess;
 import com.webtech.quicksketch.model.Sketch;
 import com.webtech.quicksketch.model.User;
@@ -24,8 +25,10 @@ public class GuessService
     private final SketchRepo sketchRepo;
     private final SecurityUtil securityUtil;
 
+    private static final int MAX_GUESSES = 10;
+
     @Transactional
-    public void guess(GuessRequest request)
+    public GuessResponse guess(GuessRequest request)
     {
         Long userId = securityUtil.getCurrentUserId();
 
@@ -35,29 +38,25 @@ public class GuessService
         Sketch sketch = sketchRepo.findById(request.sketchId()).orElseThrow(() -> 
             new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch")));
 
-        if (sketchRepo.hasUserCompletedSketch(userId, sketch.getId())) 
+        if(sketchRepo.hasUserCompletedSketch(userId, sketch.getId())) 
         {
             throw new IllegalArgumentException("User has completed the sketch and cannot guess further.");
         }
 
         Guess guess = new Guess(request.text(), user, sketch);
-        guess.setIsCorrect(isCorrect(guess));
+        String targetText = guess.getSketch().getWord().getText();
+        Boolean isCorrect = guess.getText().equalsIgnoreCase(targetText);
+        guess.setIsCorrect(isCorrect);
 
         repo.save(guess);
 
-        if(guess.getIsCorrect())
+        Integer guessCount = repo.countByUserIdAndSketchId(userId, sketch.getId());
+        
+        if(isCorrect || guessCount >= MAX_GUESSES)
         {
-            sketchRepo.markAsCompleted(true, userId, sketch.getId());
+            sketchRepo.markAsCompleted(isCorrect, userId, sketch.getId());
         }
-        else if (repo.countByUserIdAndSketchId(userId, sketch.getId()) >= 10)
-        {
-            sketchRepo.markAsCompleted(false, userId, sketch.getId());
-        }
-    }
 
-    private boolean isCorrect(Guess guess)
-    {
-        String targetText = guess.getSketch().getWord().getText();
-        return guess.getText().equalsIgnoreCase(targetText);
+        return new GuessResponse(isCorrect, MAX_GUESSES - guessCount, isCorrect ? targetText : null);
     }
 }

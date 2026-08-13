@@ -6,5 +6,5 @@ import com.webtech.quicksketch.model.Guess;
 
 public interface GuessRepo extends JpaRepository<Guess, Long>
 {
-    int countByUserIdAndSketchId(Long userId, Long sketchId);
+    Integer countByUserIdAndSketchId(Long userId, Long sketchId);
 }
