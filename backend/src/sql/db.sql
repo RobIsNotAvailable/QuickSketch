@@ -91,24 +91,32 @@ CREATE TABLE user_follows
 );
 
 
-CREATE OR REPLACE FUNCTION check_same_sketch_reply()
+CREATE OR REPLACE FUNCTION check_reply_integrity()
 RETURNS TRIGGER AS $$
+DECLARE
+    parent_sketch_id BIGINT;
+    parent_reply_to_id BIGINT;
 BEGIN
     IF NEW.reply_to_id IS NOT NULL THEN
-        IF EXISTS
-        (
-            SELECT 1 FROM comments 
-            WHERE id = NEW.reply_to_id 
-              AND sketch_id <> NEW.sketch_id
-        ) THEN
+        SELECT sketch_id, reply_to_id 
+        INTO parent_sketch_id, parent_reply_to_id
+        FROM comments 
+        WHERE id = NEW.reply_to_id;
+
+        IF parent_sketch_id <> NEW.sketch_id THEN
             RAISE EXCEPTION 'New comment and parent comment must belong to the same sketch.';
         END IF;
+
+        IF parent_reply_to_id IS NOT NULL THEN
+            RAISE EXCEPTION 'Nested replies are not allowed. You can only reply to a top-level comment.';
+        END IF;
     END IF;
+    
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER enforce_same_sketch_reply
+CREATE TRIGGER enforce_reply_integrity
 BEFORE INSERT OR UPDATE ON comments
 FOR EACH ROW
-EXECUTE FUNCTION check_same_sketch_reply();
+EXECUTE FUNCTION check_reply_integrity();

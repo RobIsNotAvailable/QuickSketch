@@ -2,6 +2,8 @@ package com.webtech.quicksketch.service;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.webtech.quicksketch.dto.request.CommentRequest;
@@ -31,12 +33,13 @@ public class CommentService
     @Transactional
     public CommentResponse comment(CommentRequest request)
     {
-        User user = userRepo.getReferenceById(securityUtil.getCurrentUserId());
+        Long userId = securityUtil.getCurrentUserId();
+        User user = userRepo.getReferenceById(userId);
 
         Sketch sketch = sketchRepo.findById(request.sketchId()).orElseThrow(() -> 
             new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch")));
 
-        if(!sketchRepo.hasUserCompletedSketch(user.getId(), sketch.getId())) 
+        if(!sketchRepo.hasUserCompletedSketch(userId, sketch.getId())) 
         {
             throw new IllegalArgumentException("User has not completed the sketch and cannot comment.");
         }
@@ -47,9 +50,17 @@ public class CommentService
                         .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Comment"))))
                 .orElse(null);
 
-        if(replyTo != null && !replyTo.getSketch().equals(sketch))
+        if(replyTo != null)
         {
-            throw new IllegalArgumentException("New comment and parent comment must belong to the same sketch.");
+            if(!replyTo.getSketch().getId().equals(sketch.getId()))
+            {
+                throw new IllegalArgumentException("New comment and parent comment must belong to the same sketch.");
+            }
+
+            if(replyTo.getReplyTo() != null)
+            {
+                throw new IllegalArgumentException("Nested replies are not allowed. You can only reply to a top-level comment.");
+            }
         }
         Comment comment = new Comment(request.comment(), user, sketch, replyTo);
         repo.save(comment);
@@ -57,8 +68,19 @@ public class CommentService
         return mapToResponse(comment);
     }
 
+    public Page<CommentResponse> getUserComments(Long userId, Pageable pageable)
+    {
+        if(!userRepo.existsById(userId))
+        {
+            throw new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("User"));
+        }
+
+        return repo.findByUserIdOrderByCreatedAtDesc(userId, pageable)
+                .map(this::mapToResponse);
+    }
+
     private CommentResponse mapToResponse(Comment comment)
     {
-        return new CommentResponse(comment.getText(), comment.getCreatedAt(), new UserSummaryResponse(comment.getUser().getId(), comment.getUser().getUsername()), comment.getSketch().getId(), comment.getReplyTo() != null ? comment.getReplyTo().getId() : null);
+        return new CommentResponse(comment.getId(), comment.getText(), comment.getCreatedAt(), new UserSummaryResponse(comment.getUser().getId(), comment.getUser().getUsername()), comment.getSketch().getId(), comment.getReplyTo() != null ? comment.getReplyTo().getId() : null);
     }
 }
