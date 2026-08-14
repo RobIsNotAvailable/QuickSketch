@@ -8,5 +8,9 @@ import com.webtech.quicksketch.model.Comment;
 
 public interface CommentRepo extends JpaRepository<Comment, Long>
 {
+    Long countBySketchId(Long sketchId);
+
     Page<Comment> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
+    Page<Comment> findBySketchIdAndReplyToIsNullOrderByCreatedAtDesc(Long sketchId, Pageable pageable);
 }

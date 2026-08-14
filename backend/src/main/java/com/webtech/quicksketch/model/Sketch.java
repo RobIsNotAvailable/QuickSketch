@@ -1,6 +1,6 @@
 package com.webtech.quicksketch.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,13 +28,20 @@ public class Sketch
     private String imageData; 
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Instant createdAt = Instant.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id", nullable = false)
     private Word word;
+
+    public Sketch(String imageData, User author, Word word)
+    {
+        this.imageData = imageData;
+        this.author = author;
+        this.word = word;
+    }
 }

@@ -79,6 +79,17 @@ public class CommentService
                 .map(this::mapToResponse);
     }
 
+    public Page<CommentResponse> getSketchComments(Long sketchId, Pageable pageable)
+    {
+        if(!sketchRepo.existsById(sketchId))
+        {
+            throw new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch"));
+        }
+
+        return repo.findBySketchIdAndReplyToIsNullOrderByCreatedAtDesc(sketchId, pageable)
+                .map(this::mapToResponse);
+    }
+
     private CommentResponse mapToResponse(Comment comment)
     {
         return new CommentResponse(comment.getId(), comment.getText(), comment.getCreatedAt(), new UserSummaryResponse(comment.getUser().getId(), comment.getUser().getUsername()), comment.getSketch().getId(), comment.getReplyTo() != null ? comment.getReplyTo().getId() : null);
