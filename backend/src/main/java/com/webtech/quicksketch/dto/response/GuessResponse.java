@@ -2,6 +2,6 @@ package com.webtech.quicksketch.dto.response;
 
 public record GuessResponse(
     Boolean correct,
-    Integer guessesLeft,
+    int guessesLeft,
     String solution
 ) {}

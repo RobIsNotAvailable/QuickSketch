@@ -24,7 +24,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -123,14 +123,5 @@ public class TokenService
         String newAccessToken = generateAccessToken(user);
 
         return new AuthResponse(newAccessToken, refreshToken.getToken());
-    }
-
-    @Transactional
-    public AuthResponse generateFullAuthResponse(User user)
-    {
-        String accessToken = generateAccessToken(user);
-        RefreshToken refreshToken = generateRefreshToken(user);
-
-        return new AuthResponse(accessToken, refreshToken.getToken());
     }
 }

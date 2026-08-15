@@ -11,5 +11,5 @@ public interface ReactionRepo extends JpaRepository<Reaction, Long>
 {
     Optional<Reaction> findByUserIdAndSketchId(Long userId, Long sketchId);
 
-    Long countBySketchIdAndType(Long sketchId, ReactionType type);
+    int countBySketchIdAndType(Long sketchId, ReactionType type);
 }

@@ -7,6 +7,6 @@ public record CommentResponse(
     String text,
     Instant createdAt,
     UserSummaryResponse author,
-    Long sketchId,
-    Long replyToId
+    long sketchId,
+    long replyToId
 ) {}

@@ -15,7 +15,7 @@ import com.webtech.quicksketch.repository.SketchRepo;
 import com.webtech.quicksketch.repository.UserRepo;
 import com.webtech.quicksketch.util.SecurityUtil;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -61,8 +61,8 @@ public class ReactionService
             }
         }
 
-        Long likes = repo.countBySketchIdAndType(sketchId, ReactionType.LIKE);
-        Long dislikes = repo.countBySketchIdAndType(sketchId, ReactionType.DISLIKE);
+        int likes = repo.countBySketchIdAndType(sketchId, ReactionType.LIKE);
+        int dislikes = repo.countBySketchIdAndType(sketchId, ReactionType.DISLIKE);
 
         return new ReactResponse(newType, likes, dislikes);
     }

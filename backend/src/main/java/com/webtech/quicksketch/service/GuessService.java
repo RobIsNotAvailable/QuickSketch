@@ -13,7 +13,7 @@ import com.webtech.quicksketch.repository.UserRepo;
 import com.webtech.quicksketch.util.SecurityUtil;
 import com.webtech.quicksketch.util.StringConstants;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -49,7 +49,7 @@ public class GuessService
 
         repo.save(guess);
 
-        Integer guessCount = repo.countByUserIdAndSketchId(userId, sketch.getId());
+        int guessCount = repo.countByUserIdAndSketchId(userId, sketch.getId());
         
         if(isCorrect || guessCount >= MAX_GUESSES)
         {

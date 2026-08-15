@@ -11,9 +11,9 @@ public record SketchFeedResponse(
     UserSummaryResponse author,
     Boolean isCompletedByCurrentUser,
     String targetWord,
-    Long likes,
-    Long dislikes,
+    long likes,
+    long dislikes,
     ReactionType currentUserReaction,
-    Integer remainingGuesses,
-    Long commentsCount
+    int remainingGuesses,
+    long commentsCount
 ) {}

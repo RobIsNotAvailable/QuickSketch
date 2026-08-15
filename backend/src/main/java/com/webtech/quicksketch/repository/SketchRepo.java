@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.webtech.quicksketch.model.Sketch;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface SketchRepo extends JpaRepository<Sketch, Long>
 {
@@ -42,4 +42,18 @@ public interface SketchRepo extends JpaRepository<Sketch, Long>
     Page<Sketch> findFollowedFeed(@Param("userId") Long userId, Pageable pageable);
 
     Page<Sketch> findByAuthorIdOrderByCreatedAtDesc(Long authorId, Pageable pageable);
+
+    int countByAuthorId(Long authorId);
+
+    @Query
+    ("""
+        SELECT COALESCE
+        (
+            (COUNT(CASE WHEN g.isCorrect = true THEN 1 END) * 100.0) / NULLIF(COUNT(g), 0), 
+            0.0
+        )
+        FROM Guess g
+        WHERE g.sketch.author.id = :authorId
+    """)
+    Double calculateArtistWinRate(@Param("authorId") Long authorId);
 }

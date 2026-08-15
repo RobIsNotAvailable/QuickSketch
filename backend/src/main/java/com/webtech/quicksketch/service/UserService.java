@@ -6,15 +6,20 @@ import org.springframework.stereotype.Service;
 import com.webtech.quicksketch.dto.request.LoginRequest;
 import com.webtech.quicksketch.dto.request.RegisterRequest;
 import com.webtech.quicksketch.dto.response.AuthResponse;
+import com.webtech.quicksketch.dto.response.UserStatsResponse;
 import com.webtech.quicksketch.model.RefreshToken;
 import com.webtech.quicksketch.model.User;
 import com.webtech.quicksketch.repository.RefreshTokenRepo;
+import com.webtech.quicksketch.repository.SketchRepo;
 import com.webtech.quicksketch.repository.UserRepo;
 import com.webtech.quicksketch.service.utilityservice.TokenService;
 import com.webtech.quicksketch.util.SecurityUtil;
 import com.webtech.quicksketch.util.StringConstants;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.webtech.quicksketch.repository.GuessRepo;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,6 +30,8 @@ public class UserService
     private final PasswordEncoder encoder;
     private final TokenService tokenService;
     private final RefreshTokenRepo tokenRepo;
+    private final SketchRepo sketchRepo;
+    private final GuessRepo guessRepo;
     private final SecurityUtil securityUtil;
 
     @Transactional
@@ -103,5 +110,36 @@ public class UserService
             repo.followUser(currentUserId, targetUserId);
             return true;
         }
+    }
+
+    @Transactional(readOnly = true)
+    public UserStatsResponse getUserStats(Long targetUserId)
+    {
+        User user = repo.findById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("User")));
+
+        long totalSketches = sketchRepo.countByAuthorId(targetUserId);
+        double artistWinRate = sketchRepo.calculateArtistWinRate(targetUserId);
+
+        long totalAttempts = guessRepo.countByUserId(targetUserId);
+        long wordsGuessed = guessRepo.countByUserIdAndIsCorrectTrue(targetUserId);
+        long wordsFailed = guessRepo.countFailedSketchesByUserId(targetUserId);
+
+        long completedSketches = wordsGuessed + wordsFailed;
+        double guesserWinRate = 0.0;
+        if(completedSketches > 0)
+        {
+            guesserWinRate = ((double) wordsGuessed / completedSketches) * 100.0;
+        }
+
+        return new UserStatsResponse(
+            user.getUsername(),
+            totalSketches,
+            Math.round(artistWinRate * 100.0) / 100.0,
+            totalAttempts,
+            wordsGuessed,
+            wordsFailed,
+            Math.round(guesserWinRate * 100.0) / 100.0
+        );
     }
 }
