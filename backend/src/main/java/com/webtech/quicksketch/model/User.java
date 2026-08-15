@@ -38,6 +38,13 @@ public class User implements UserDetails
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
+    public User(String username, String email, String password)
+    {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
     // userdetails
 
     @Override

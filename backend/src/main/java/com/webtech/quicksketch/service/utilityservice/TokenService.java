@@ -95,7 +95,7 @@ public class TokenService
     }
 
     @Transactional
-    public RefreshToken createRefreshToken(User user)
+    public RefreshToken generateRefreshToken(User user)
     {
         refreshTokenRepo.deleteByUserId(user.getId());
 
@@ -129,7 +129,7 @@ public class TokenService
     public AuthResponse generateFullAuthResponse(User user)
     {
         String accessToken = generateAccessToken(user);
-        RefreshToken refreshToken = createRefreshToken(user);
+        RefreshToken refreshToken = generateRefreshToken(user);
 
         return new AuthResponse(accessToken, refreshToken.getToken());
     }

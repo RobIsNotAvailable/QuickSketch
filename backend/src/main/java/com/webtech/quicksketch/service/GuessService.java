@@ -62,4 +62,22 @@ public class GuessService
 
         return new GuessResponse(isCorrect, MAX_GUESSES - guessCount, targetText);
     }
+
+    @Transactional
+    public GuessResponse giveUp(Long sketchId)
+    {
+        Long userId = securityUtil.getCurrentUserId();
+        
+        Sketch sketch = sketchRepo.findById(sketchId).orElseThrow(() -> 
+            new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch")));
+
+        if(sketchRepo.hasUserCompletedSketch(userId, sketchId))
+        {
+            throw new IllegalArgumentException("User has completed the sketch already and cannot give up.");
+        }
+
+        sketchRepo.markAsCompleted(false, userId, sketchId);
+
+        return new GuessResponse(false, 0, sketch.getWord().getText());
+    }
 }

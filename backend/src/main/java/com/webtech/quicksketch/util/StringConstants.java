@@ -7,9 +7,7 @@ public final class StringConstants
     /* DTO validators */
     public static final String EMAIL_REGEX = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     public static final String INVALID_EMAIL_MESSAGE = "Invalid email format";
-    public static final String EMAIL_REQUIRED_MESSAGE = "Email field is required";
 
-    public static final String PASSWORD_REQUIRED_MESSAGE = "Password field is required";
     public static final String VALIDATION_PATTERN= "^(?=.*[A-Za-z])(?=.*\\d).{8,64}$";
     public static final String PASSWORD_MESSAGE = "Password must be 8 characters or longer and contain both letters and numbers";
 
