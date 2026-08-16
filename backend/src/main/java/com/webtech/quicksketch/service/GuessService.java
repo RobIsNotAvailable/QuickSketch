@@ -1,6 +1,7 @@
 package com.webtech.quicksketch.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.webtech.quicksketch.dto.request.GuessRequest;
 import com.webtech.quicksketch.dto.response.GuessResponse;
@@ -13,7 +14,6 @@ import com.webtech.quicksketch.repository.UserRepo;
 import com.webtech.quicksketch.util.SecurityUtil;
 import com.webtech.quicksketch.util.StringConstants;
 
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,7 +32,7 @@ public class GuessService
     {
         Long userId = securityUtil.getCurrentUserId();
 
-        User user = userRepo.getReferenceById(securityUtil.getCurrentUserId());
+        User user = userRepo.getReferenceById(userId);
 
         Sketch sketch = sketchRepo.findById(request.sketchId()).orElseThrow(() -> 
             new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch")));

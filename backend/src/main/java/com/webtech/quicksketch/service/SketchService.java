@@ -5,13 +5,13 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.webtech.quicksketch.dto.WordDto;
 import com.webtech.quicksketch.dto.request.CreateSketchRequest;
 import com.webtech.quicksketch.dto.response.SketchFeedResponse;
 import com.webtech.quicksketch.dto.response.SketchInitResponse;
 import com.webtech.quicksketch.dto.response.UserSummaryResponse;
-import com.webtech.quicksketch.model.Reaction;
 import com.webtech.quicksketch.model.Sketch;
 import com.webtech.quicksketch.model.User;
 import com.webtech.quicksketch.model.Word;
@@ -25,7 +25,6 @@ import com.webtech.quicksketch.repository.WordRepo;
 import com.webtech.quicksketch.util.SecurityUtil;
 import com.webtech.quicksketch.util.StringConstants;
 
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -74,7 +73,7 @@ public class SketchService
     @Transactional(readOnly = true)
     public Page<SketchFeedResponse> getGlobalFeed(Pageable pageable)
     {
-        Long userId = securityUtil.getCurrentUserId();
+        Long userId = securityUtil.isAuthenticated() ? securityUtil.getCurrentUserId() : null;
 
         return repo.findAllByOrderByCreatedAtDesc(pageable)
                 .map(sketch -> mapToFeedResponse(sketch, userId));
@@ -118,21 +117,28 @@ public class SketchService
     {
         Long sketchId = sketch.getId();
 
-        boolean isCompleted = repo.hasUserCompletedSketch(userId, sketchId);
+        boolean isCompleted = false;
 
-        long likes = reactionRepo.countBySketchIdAndType(sketchId, ReactionType.LIKE);
-        long dislikes = reactionRepo.countBySketchIdAndType(sketchId, ReactionType.DISLIKE);
+        int likes = reactionRepo.countBySketchIdAndType(sketchId, ReactionType.LIKE);
+        int dislikes = reactionRepo.countBySketchIdAndType(sketchId, ReactionType.DISLIKE);
 
-        ReactionType userReaction = reactionRepo.findByUserIdAndSketchId(userId, sketchId)
-                .map(Reaction::getType)
-                .orElse(null);
+        ReactionType userReaction = null;
 
-        int remainingGuesses = MAX_GUESSES - guessRepo.countByUserIdAndSketchId(userId, sketchId);
+        int remainingGuesses = 0;
 
         String targetWord = isCompleted ? sketch.getWord().getText() : null;
 
-        long commentsCount = commentRepo.countBySketchId(sketchId);
+        int commentsCount = commentRepo.countBySketchId(sketchId);
 
+        if(userId != null)
+        {
+            isCompleted = repo.hasUserCompletedSketch(userId, sketchId);
+            userReaction = reactionRepo.findByUserIdAndSketchId(userId, sketchId)
+                    .map(r -> r.getType())
+                    .orElse(null);
+            remainingGuesses = MAX_GUESSES - guessRepo.countByUserIdAndSketchId(userId, sketchId);
+        
+        }
         return new SketchFeedResponse(
             sketchId,
             sketch.getImageData(),

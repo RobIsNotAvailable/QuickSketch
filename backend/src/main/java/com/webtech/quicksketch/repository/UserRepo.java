@@ -2,11 +2,14 @@ package com.webtech.quicksketch.repository;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.webtech.quicksketch.dto.LeaderboardEntryProjection;
 import com.webtech.quicksketch.model.User;
 
 public interface UserRepo extends JpaRepository<User, Long>
@@ -27,4 +30,93 @@ public interface UserRepo extends JpaRepository<User, Long>
     @Modifying
     @Query(value = "DELETE FROM follows WHERE follower_id = :followerId AND followed_id = :followedId", nativeQuery = true)
     void unfollowUser(@Param("followerId") Long followerId, @Param("followedId") Long followedId);
+
+    @Query
+    ("""
+        SELECT COALESCE
+        (
+            (COUNT(CASE WHEN g.isCorrect = true THEN 1 END) * 100.0) / NULLIF(COUNT(g), 0), 
+            0.0
+        )
+        FROM Guess g
+        WHERE g.sketch.author.id = :authorId
+    """)
+    Double calculateArtistWinRate(@Param("authorId") Long authorId);
+
+    @Query
+    (value = """
+        WITH leaderboard AS
+        (
+            SELECT 
+                u.id AS userId,
+                u.username AS username,
+                COUNT(DISTINCT CASE WHEN g.is_correct = true THEN g.id END) AS wordsGuessed,
+                COALESCE
+                (
+                    (COUNT(DISTINCT CASE WHEN g_art.is_correct = true THEN g_art.id END) * 100.0) / 
+                    NULLIF(COUNT(DISTINCT g_art.id), 0), 
+                    0.0
+                ) AS artistSuccessRate,
+                RANK() OVER
+                (
+                    ORDER BY COUNT(DISTINCT CASE WHEN g.is_correct = true THEN g.id END) DESC
+                ) AS guesserRank,
+                RANK() OVER
+                (
+                    ORDER BY COALESCE
+                    (
+                        (COUNT(DISTINCT CASE WHEN g_art.is_correct = true THEN g_art.id END) * 100.0) / 
+                        NULLIF(COUNT(DISTINCT g_art.id), 0), 
+                        0.0
+                    ) DESC
+                ) AS artistRank
+            FROM users u
+            LEFT JOIN guesses g ON g.user_id = u.id
+            LEFT JOIN sketches s ON s.author_id = u.id
+            LEFT JOIN guesses g_art ON g_art.sketch_id = s.id
+            GROUP BY u.id, u.username
+        )
+        SELECT * FROM leaderboard
+    """, 
+    countQuery = "SELECT COUNT(*) FROM users",
+    nativeQuery = true)
+    Page<LeaderboardEntryProjection> getLeaderboard(Pageable pageable);
+
+    @Query
+    (value = """
+        WITH leaderboard AS
+        (
+            SELECT 
+                u.id AS userId,
+                u.username AS username,
+                COUNT(DISTINCT CASE WHEN g.is_correct = true THEN g.id END) AS wordsGuessed,
+                COALESCE
+                (
+                    (COUNT(DISTINCT CASE WHEN g_art.is_correct = true THEN g_art.id END) * 100.0) / 
+                    NULLIF(COUNT(DISTINCT g_art.id), 0), 
+                    0.0
+                ) AS artistSuccessRate,
+                RANK() OVER
+                (
+                    ORDER BY COUNT(DISTINCT CASE WHEN g.is_correct = true THEN g.id END) DESC
+                ) AS guesserRank,
+                RANK() OVER
+                (
+                    ORDER BY COALESCE
+                    (
+                        (COUNT(DISTINCT CASE WHEN g_art.is_correct = true THEN g_art.id END) * 100.0) / 
+                        NULLIF(COUNT(DISTINCT g_art.id), 0), 
+                        0.0
+                    ) DESC
+                ) AS artistRank
+            FROM users u
+            LEFT JOIN guesses g ON g.user_id = u.id
+            LEFT JOIN sketches s ON s.author_id = u.id
+            LEFT JOIN guesses g_art ON g_art.sketch_id = s.id
+            GROUP BY u.id, u.username
+        )
+        SELECT * FROM leaderboard WHERE userId = :userId
+    """, nativeQuery = true)
+    Optional<LeaderboardEntryProjection> getLeaderboardEntryByUserId(@Param("userId") Long userId);
 }
+

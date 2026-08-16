@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.webtech.quicksketch.dto.response.AuthResponse;
 import com.webtech.quicksketch.model.RefreshToken;
@@ -24,7 +25,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -36,8 +36,8 @@ public class TokenService
 
     private final RefreshTokenRepo refreshTokenRepo;
 
-    private static final long JWT_EXPIRATION_TIME = 1000L * 60 * 15; // 15 minuti
-    private static final long REFRESH_EXPIRATION_TIME = 60 * 60 * 24 * 30; // 30 giorni
+    private static final int JWT_EXPIRATION_TIME = 1000 * 60 * 15; // 15 minuti
+    private static final int REFRESH_EXPIRATION_TIME = 60 * 60 * 24 * 30; // 30 giorni
 
     public String generateAccessToken(User user)
     {

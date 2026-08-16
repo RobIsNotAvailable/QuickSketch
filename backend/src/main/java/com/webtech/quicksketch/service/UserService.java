@@ -1,24 +1,28 @@
 package com.webtech.quicksketch.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.webtech.quicksketch.dto.LeaderboardEntryProjection;
 import com.webtech.quicksketch.dto.request.LoginRequest;
 import com.webtech.quicksketch.dto.request.RegisterRequest;
 import com.webtech.quicksketch.dto.response.AuthResponse;
+import com.webtech.quicksketch.dto.response.LeaderboardResponse;
 import com.webtech.quicksketch.dto.response.UserStatsResponse;
 import com.webtech.quicksketch.model.RefreshToken;
 import com.webtech.quicksketch.model.User;
+import com.webtech.quicksketch.repository.GuessRepo;
 import com.webtech.quicksketch.repository.RefreshTokenRepo;
 import com.webtech.quicksketch.repository.SketchRepo;
 import com.webtech.quicksketch.repository.UserRepo;
 import com.webtech.quicksketch.service.utilityservice.TokenService;
 import com.webtech.quicksketch.util.SecurityUtil;
 import com.webtech.quicksketch.util.StringConstants;
-
-import org.springframework.transaction.annotation.Transactional;
-
-import com.webtech.quicksketch.repository.GuessRepo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -118,19 +122,12 @@ public class UserService
         User user = repo.findById(targetUserId)
                 .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("User")));
 
-        long totalSketches = sketchRepo.countByAuthorId(targetUserId);
-        double artistWinRate = sketchRepo.calculateArtistWinRate(targetUserId);
+        int totalSketches = sketchRepo.countByAuthorId(targetUserId);
+        double artistWinRate = repo.calculateArtistWinRate(targetUserId);
 
-        long totalAttempts = guessRepo.countByUserId(targetUserId);
-        long wordsGuessed = guessRepo.countByUserIdAndIsCorrectTrue(targetUserId);
-        long wordsFailed = guessRepo.countFailedSketchesByUserId(targetUserId);
-
-        long completedSketches = wordsGuessed + wordsFailed;
-        double guesserWinRate = 0.0;
-        if(completedSketches > 0)
-        {
-            guesserWinRate = ((double) wordsGuessed / completedSketches) * 100.0;
-        }
+        int totalAttempts = guessRepo.countByUserId(targetUserId);
+        int wordsGuessed = guessRepo.countByUserIdAndIsCorrectTrue(targetUserId);
+        int wordsFailed = guessRepo.countFailedSketchesByUserId(targetUserId);
 
         return new UserStatsResponse(
             user.getUsername(),
@@ -138,8 +135,31 @@ public class UserService
             Math.round(artistWinRate * 100.0) / 100.0,
             totalAttempts,
             wordsGuessed,
-            wordsFailed,
-            Math.round(guesserWinRate * 100.0) / 100.0
+            wordsFailed
         );
+    }
+
+    @Transactional(readOnly = true)
+    public LeaderboardResponse getLeaderboard(String sortBy, Pageable pageable)
+    {
+        Pageable sortedPageable = PageRequest.of(
+            pageable.getPageNumber(),
+            pageable.getPageSize(),
+            Sort.by(Sort.Direction.DESC, sortBy)
+        );
+
+        Page<LeaderboardEntryProjection> leaderboardPage = repo.getLeaderboard(sortedPageable);
+
+        Long userId;
+        LeaderboardEntryProjection userStats = null;
+        if(securityUtil.isAuthenticated())
+        {
+            userId = securityUtil.getCurrentUserId();
+            userStats = repo.getLeaderboardEntryByUserId(userId)
+            .orElse(null);
+        }
+
+
+        return new LeaderboardResponse(userStats, leaderboardPage);
     }
 }
