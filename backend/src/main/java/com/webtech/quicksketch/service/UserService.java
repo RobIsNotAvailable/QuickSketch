@@ -1,21 +1,21 @@
 package com.webtech.quicksketch.service;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.webtech.quicksketch.dto.LeaderboardEntryProjection;
 import com.webtech.quicksketch.dto.request.LoginRequest;
+import com.webtech.quicksketch.dto.request.RefreshTokenRequest;
 import com.webtech.quicksketch.dto.request.RegisterRequest;
 import com.webtech.quicksketch.dto.response.AuthResponse;
 import com.webtech.quicksketch.dto.response.LeaderboardResponse;
 import com.webtech.quicksketch.dto.response.UserStatsResponse;
 import com.webtech.quicksketch.model.RefreshToken;
 import com.webtech.quicksketch.model.User;
+import com.webtech.quicksketch.model.enums.GuessAccuracy;
 import com.webtech.quicksketch.repository.GuessRepo;
 import com.webtech.quicksketch.repository.RefreshTokenRepo;
 import com.webtech.quicksketch.repository.SketchRepo;
@@ -36,12 +36,11 @@ public class UserService
     private final RefreshTokenRepo tokenRepo;
     private final SketchRepo sketchRepo;
     private final GuessRepo guessRepo;
-    private final SecurityUtil securityUtil;
 
     @Transactional
     public AuthResponse login(LoginRequest request)
     {
-        User user = repo.findByEmail(request.email()).orElseThrow(() -> 
+        User user = repo.findByEmailOrUsername(request.key(), request.key()).orElseThrow(() -> 
             new SecurityException(StringConstants.INVALID_CREDENTIALS_MESSAGE));
 
         if (!encoder.matches(request.password(), user.getPassword()))
@@ -84,15 +83,37 @@ public class UserService
     }
 
     @Transactional
-    public void logout(String refreshTokenValue)
+    public void logout()
     {
-        tokenRepo.findByToken(refreshTokenValue).ifPresent(tokenRepo::delete);
+        Long userId = SecurityUtil.getCurrentUserId().orElseThrow(() ->
+            new SecurityException("User not authenticated"));
+        tokenRepo.deleteByUserId(userId);
+    }
+
+    @Transactional
+    public AuthResponse refreshToken(RefreshTokenRequest request)
+    {
+        RefreshToken token = tokenRepo.findByToken(request.refreshToken()).orElseThrow(() ->
+                new SecurityException(StringConstants.NOT_FOUND("Token")));
+
+        if(token.isExpired())
+        {
+            throw new SecurityException("Session is expired. Please login again");        
+        }
+
+        User user = token.getUser();
+        String newAccessToken = tokenService.generateAccessToken(user);
+        RefreshToken newRefreshToken = tokenService.generateRefreshToken(user);
+
+        tokenRepo.save(newRefreshToken);
+        return new AuthResponse(newAccessToken, newRefreshToken.getToken());
     }
 
     @Transactional
     public boolean toggleFollow(Long targetUserId)
     {
-        Long currentUserId = securityUtil.getCurrentUserId();
+        Long currentUserId = SecurityUtil.getCurrentUserId().orElseThrow(() ->
+            new SecurityException("User not authenticated"));
 
         if(currentUserId.equals(targetUserId))
         {
@@ -101,7 +122,7 @@ public class UserService
 
         if(!repo.existsById(targetUserId))
         {
-            throw new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Target user"));
+            throw new IllegalArgumentException(StringConstants.NOT_FOUND("Target user"));
         }
 
         if(repo.isFollowing(currentUserId, targetUserId))
@@ -117,17 +138,17 @@ public class UserService
     }
 
     @Transactional(readOnly = true)
-    public UserStatsResponse getUserStats(Long targetUserId)
+    public UserStatsResponse getUserStats(Long userId)
     {
-        User user = repo.findById(targetUserId)
-                .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("User")));
+        User user = repo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND("User")));
 
-        int totalSketches = sketchRepo.countByAuthorId(targetUserId);
-        double artistWinRate = repo.calculateArtistWinRate(targetUserId);
+        int totalSketches = sketchRepo.countByAuthorId(userId);
+        double artistWinRate = repo.calculateArtistWinRate(userId);
 
-        int totalAttempts = guessRepo.countByUserId(targetUserId);
-        int wordsGuessed = guessRepo.countByUserIdAndIsCorrectTrue(targetUserId);
-        int wordsFailed = guessRepo.countFailedSketchesByUserId(targetUserId);
+        int totalAttempts = guessRepo.countByUserId(userId);
+        int wordsGuessed = guessRepo.countByUserIdAndAccuracy(userId, GuessAccuracy.CORRECT);
+        int wordsFailed = guessRepo.countFailedSketchesByUserId(userId);
 
         return new UserStatsResponse(
             user.getUsername(),
@@ -142,19 +163,13 @@ public class UserService
     @Transactional(readOnly = true)
     public LeaderboardResponse getLeaderboard(String sortBy, Pageable pageable)
     {
-        Pageable sortedPageable = PageRequest.of(
-            pageable.getPageNumber(),
-            pageable.getPageSize(),
-            Sort.by(Sort.Direction.DESC, sortBy)
-        );
+        Page<LeaderboardEntryProjection> leaderboardPage = repo.getLeaderboard(sortBy, pageable);
 
-        Page<LeaderboardEntryProjection> leaderboardPage = repo.getLeaderboard(sortedPageable);
-
-        Long userId;
+        Long userId = SecurityUtil.getCurrentUserId().orElse(null);
         LeaderboardEntryProjection userStats = null;
-        if(securityUtil.isAuthenticated())
+
+        if(userId != null)
         {
-            userId = securityUtil.getCurrentUserId();
             userStats = repo.getLeaderboardEntryByUserId(userId)
             .orElse(null);
         }

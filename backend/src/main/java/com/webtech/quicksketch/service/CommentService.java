@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.webtech.quicksketch.dto.request.CommentRequest;
 import com.webtech.quicksketch.dto.response.CommentResponse;
@@ -18,7 +19,6 @@ import com.webtech.quicksketch.repository.UserRepo;
 import com.webtech.quicksketch.util.SecurityUtil;
 import com.webtech.quicksketch.util.StringConstants;
 
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,38 +28,38 @@ public class CommentService
     private final CommentRepo repo;
     private final UserRepo userRepo;
     private final SketchRepo sketchRepo;
-    private final SecurityUtil securityUtil;
 
     @Transactional
     public CommentResponse comment(CommentRequest request)
     {
-        Long userId = securityUtil.getCurrentUserId();
+        Long userId = SecurityUtil.getCurrentUserId().orElseThrow(() ->
+            new SecurityException("User not authenticated"));
         User user = userRepo.getReferenceById(userId);
 
         Sketch sketch = sketchRepo.findById(request.sketchId()).orElseThrow(() -> 
-            new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch")));
+            new IllegalArgumentException(StringConstants.NOT_FOUND("Sketch")));
 
         if(!sketchRepo.hasUserCompletedSketch(userId, sketch.getId())) 
         {
-            throw new IllegalArgumentException("User has not completed the sketch and cannot comment.");
+            throw new IllegalArgumentException("User has not completed the sketch and cannot comment");
         }
 
         Comment replyTo = 
                 Optional.ofNullable(request.replyToId())
                 .map(id -> repo.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Comment"))))
+                        .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND("Comment"))))
                 .orElse(null);
 
         if(replyTo != null)
         {
             if(!replyTo.getSketch().getId().equals(sketch.getId()))
             {
-                throw new IllegalArgumentException("New comment and parent comment must belong to the same sketch.");
+                throw new IllegalArgumentException("New comment and parent comment must belong to the same sketch");
             }
 
             if(replyTo.getReplyTo() != null)
             {
-                throw new IllegalArgumentException("Nested replies are not allowed. You can only reply to a top-level comment.");
+                throw new IllegalArgumentException("Nested replies are not allowed. You can only reply to a top-level comment");
             }
         }
         Comment comment = new Comment(request.comment(), user, sketch, replyTo);
@@ -68,25 +68,55 @@ public class CommentService
         return mapToResponse(comment);
     }
 
+    @Transactional(readOnly = true)
     public Page<CommentResponse> getUserComments(Long userId, Pageable pageable)
     {
         if(!userRepo.existsById(userId))
         {
-            throw new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("User"));
+            throw new IllegalArgumentException(StringConstants.NOT_FOUND("User"));
         }
 
         return repo.findByUserIdOrderByCreatedAtDesc(userId, pageable)
                 .map(this::mapToResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<CommentResponse> getSketchComments(Long sketchId, Pageable pageable)
     {
+        Long userId = SecurityUtil.getCurrentUserId().orElseThrow(() ->
+            new SecurityException("User not authenticated"));
+
         if(!sketchRepo.existsById(sketchId))
         {
-            throw new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch"));
+            throw new IllegalArgumentException(StringConstants.NOT_FOUND("Sketch"));
+        }
+        
+        if(!sketchRepo.hasUserCompletedSketch(userId, sketchId)) 
+        {
+            throw new IllegalArgumentException("User has not completed the sketch and cannot see comments");
         }
 
         return repo.findBySketchIdAndReplyToIsNullOrderByCreatedAtDesc(sketchId, pageable)
+                .map(this::mapToResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CommentResponse> getCommentReplies(Long commentId, Pageable pageable)
+    {
+        Long userId = SecurityUtil.getCurrentUserId().orElseThrow(() ->
+            new SecurityException("User not authenticated"));
+
+        if(!repo.existsById(commentId))
+        {
+            throw new IllegalArgumentException(StringConstants.NOT_FOUND("Comment"));
+        }
+        
+        if(!sketchRepo.hasUserCompletedSketch(userId, commentId)) 
+        {
+            throw new IllegalArgumentException("User has not completed the sketch and cannot see comments");
+        }
+
+        return repo.findByReplyToIdOrderByCreatedAtDesc(commentId, pageable)
                 .map(this::mapToResponse);
     }
 

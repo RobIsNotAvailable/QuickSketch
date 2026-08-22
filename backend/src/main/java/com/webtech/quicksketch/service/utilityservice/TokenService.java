@@ -15,11 +15,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.webtech.quicksketch.dto.response.AuthResponse;
 import com.webtech.quicksketch.model.RefreshToken;
 import com.webtech.quicksketch.model.User;
 import com.webtech.quicksketch.repository.RefreshTokenRepo;
-import com.webtech.quicksketch.util.StringConstants;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -105,23 +103,5 @@ public class TokenService
         refreshToken.setExpiration(Instant.now().plus(REFRESH_EXPIRATION_TIME, MILLIS));
 
         return refreshTokenRepo.save(refreshToken);
-    }
-
-    @Transactional
-    public AuthResponse refreshAccessToken(String refreshTokenRequest)
-    {
-        RefreshToken refreshToken = refreshTokenRepo.findByToken(refreshTokenRequest)
-                .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Refresh Token")));
-
-        if(refreshToken.getExpiration().isBefore(Instant.now()))
-        {
-            refreshTokenRepo.delete(refreshToken);
-            throw new IllegalArgumentException("Refresh token has expired. Please log in again.");
-        }
-
-        User user = refreshToken.getUser();
-        String newAccessToken = generateAccessToken(user);
-
-        return new AuthResponse(newAccessToken, refreshToken.getToken());
     }
 }

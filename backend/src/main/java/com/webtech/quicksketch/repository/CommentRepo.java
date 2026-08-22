@@ -13,4 +13,7 @@ public interface CommentRepo extends JpaRepository<Comment, Long>
     Page<Comment> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
     Page<Comment> findBySketchIdAndReplyToIsNullOrderByCreatedAtDesc(Long sketchId, Pageable pageable);
+
+    Page<Comment> findByReplyToIdOrderByCreatedAtDesc(Long commentId, Pageable pageable);
+
 }

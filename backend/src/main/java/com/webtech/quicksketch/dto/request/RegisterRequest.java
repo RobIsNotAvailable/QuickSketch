@@ -15,6 +15,11 @@ public record RegisterRequest(
     String email,
 
     @NotBlank (message = "Username field required")
+    @Pattern
+    (
+        regexp = StringConstants.USERNAME_REGEX,
+        message = StringConstants.INVALID_USERNAME_MESSAGE
+    )
     String username,
 
 

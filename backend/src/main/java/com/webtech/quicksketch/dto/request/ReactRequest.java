@@ -2,12 +2,13 @@ package com.webtech.quicksketch.dto.request;
 
 import com.webtech.quicksketch.model.enums.ReactionType;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 
 public record ReactRequest(
-    @NotBlank(message = "Reaction cannot be blank")
+    @NotNull(message = "Reaction cannot be null")
     ReactionType type,
 
-    @NotBlank(message = "Sketch ID cannot be blank")
+    @NotNull(message = "Sketch ID cannot be blank")
     Long sketchId
 ) {}

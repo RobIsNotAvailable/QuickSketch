@@ -37,7 +37,6 @@ public class SketchService
     private final ReactionRepo reactionRepo;
     private final GuessRepo guessRepo;
     private final CommentRepo commentRepo;
-    private final SecurityUtil securityUtil;
 
     private static final int TIME_LIMIT_SECONDS = 120;
     private static final int PROPOSED_WORDS = 3;
@@ -58,11 +57,12 @@ public class SketchService
     @Transactional
     public SketchFeedResponse createSketch(CreateSketchRequest request)
     {
-        Long userId = securityUtil.getCurrentUserId();
+        Long userId = SecurityUtil.getCurrentUserId().orElseThrow(() ->
+            new SecurityException("User not authenticated"));
         User user = userRepo.getReferenceById(userId);
 
         Word word = wordRepo.findById(request.wordId()).orElseThrow(() -> 
-            new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Word")));
+            new IllegalArgumentException(StringConstants.NOT_FOUND("Word")));
 
         Sketch sketch = new Sketch(request.imageData(), user, word);
         repo.save(sketch);
@@ -73,16 +73,17 @@ public class SketchService
     @Transactional(readOnly = true)
     public Page<SketchFeedResponse> getGlobalFeed(Pageable pageable)
     {
-        Long userId = securityUtil.isAuthenticated() ? securityUtil.getCurrentUserId() : null;
+        Long userId = SecurityUtil.getCurrentUserId().orElse(null);
 
-        return repo.findAllByOrderByCreatedAtDesc(pageable)
+        return repo.findAllExcludingUser(userId, pageable)
                 .map(sketch -> mapToFeedResponse(sketch, userId));
     }
 
     @Transactional(readOnly = true)
     public Page<SketchFeedResponse> getFollowedFeed(Pageable pageable)
     {
-        Long userId = securityUtil.getCurrentUserId();
+        Long userId = SecurityUtil.getCurrentUserId().orElseThrow(() ->
+            new SecurityException("User not authenticated"));
 
         return repo.findFollowedFeed(userId, pageable)
                 .map(sketch -> mapToFeedResponse(sketch, userId));
@@ -93,10 +94,10 @@ public class SketchService
     {
         if(!userRepo.existsById(authorId))
         {
-            throw new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("User"));
+            throw new IllegalArgumentException(StringConstants.NOT_FOUND("User"));
         }
 
-        Long userId = securityUtil.getCurrentUserId();
+        Long userId = SecurityUtil.getCurrentUserId().orElse(null);
 
         return repo.findByAuthorIdOrderByCreatedAtDesc(authorId, pageable)
                 .map(sketch -> mapToFeedResponse(sketch, userId));
@@ -105,10 +106,10 @@ public class SketchService
     @Transactional(readOnly = true)
     public SketchFeedResponse getSketchById(Long sketchId)
     {
-        Long userId = securityUtil.getCurrentUserId();
+        Long userId = SecurityUtil.getCurrentUserId().orElse(null);
 
         Sketch sketch = repo.findById(sketchId)
-                .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND_MESSAGE("Sketch")));
+                .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND("Sketch")));
 
         return mapToFeedResponse(sketch, userId);
     }
@@ -126,8 +127,6 @@ public class SketchService
 
         int remainingGuesses = 0;
 
-        String targetWord = isCompleted ? sketch.getWord().getText() : null;
-
         int commentsCount = commentRepo.countBySketchId(sketchId);
 
         if(userId != null)
@@ -137,8 +136,10 @@ public class SketchService
                     .map(r -> r.getType())
                     .orElse(null);
             remainingGuesses = MAX_GUESSES - guessRepo.countByUserIdAndSketchId(userId, sketchId);
-        
         }
+
+        String targetWord = isCompleted ? sketch.getWord().getText() : null;
+
         return new SketchFeedResponse(
             sketchId,
             sketch.getImageData(),

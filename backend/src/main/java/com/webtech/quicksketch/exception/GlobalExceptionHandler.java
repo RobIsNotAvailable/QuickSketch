@@ -1,10 +1,15 @@
 package com.webtech.quicksketch.exception;
 
+import java.util.Comparator;
+import java.util.List;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -17,10 +22,29 @@ public class GlobalExceptionHandler
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException e)
+    {
+        List<String> priorityOrder = List.of("email", "username", "password");
+
+        String errorMessage = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .sorted(Comparator.comparingInt(fe -> {
+                    int index = priorityOrder.indexOf(fe.getField());
+                    return index == -1 ? priorityOrder.size() : index;
+                }))
+                .map(FieldError::getDefaultMessage)
+                .findFirst()
+                .orElse("Validation error");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+    }
+
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleMalformedJson(org.springframework.http.converter.HttpMessageNotReadableException e)
     {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Malformed JSON request: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
     @ExceptionHandler(SecurityException.class)

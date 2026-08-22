@@ -5,7 +5,7 @@ public interface LeaderboardEntryProjection
     Long getUserId();
     String getUsername();
     long getWordsGuessed();
-    double getArtistSuccessRate();
+    double getArtistWinRate();
     long getGuesserRank();
     long getArtistRank();
 }

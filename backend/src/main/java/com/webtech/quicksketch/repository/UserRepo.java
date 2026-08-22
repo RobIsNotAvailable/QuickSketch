@@ -14,7 +14,7 @@ import com.webtech.quicksketch.model.User;
 
 public interface UserRepo extends JpaRepository<User, Long>
 {
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailOrUsername(String email, String username);
 
     boolean existsByEmail(String email);
 
@@ -35,7 +35,8 @@ public interface UserRepo extends JpaRepository<User, Long>
     ("""
         SELECT COALESCE
         (
-            (COUNT(CASE WHEN g.isCorrect = true THEN 1 END) * 100.0) / NULLIF(COUNT(g), 0), 
+            (COUNT(DISTINCT CASE WHEN g.accuracy = com.webtech.quicksketch.model.enums.GuessAccuracy.CORRECT THEN 1 END) * 100.0) / 
+            NULLIF(COUNT(DISTINCT (g.user.id, g.sketch.id)), 0), 
             0.0
         )
         FROM Guess g
@@ -50,23 +51,23 @@ public interface UserRepo extends JpaRepository<User, Long>
             SELECT 
                 u.id AS userId,
                 u.username AS username,
-                COUNT(DISTINCT CASE WHEN g.is_correct = true THEN g.id END) AS wordsGuessed,
+                COUNT(DISTINCT CASE WHEN g.accuracy = 'CORRECT' THEN 1 END) AS wordsGuessed,
                 COALESCE
                 (
-                    (COUNT(DISTINCT CASE WHEN g_art.is_correct = true THEN g_art.id END) * 100.0) / 
-                    NULLIF(COUNT(DISTINCT g_art.id), 0), 
+                    (COUNT(DISTINCT CASE WHEN g_art.accuracy = 'CORRECT' THEN 1 END) * 100.0) / 
+                    NULLIF(COUNT(DISTINCT CASE WHEN g_art.user_id IS NOT NULL AND g_art.sketch_id IS NOT NULL THEN ROW(g_art.user_id, g_art.sketch_id) END), 0),
                     0.0
-                ) AS artistSuccessRate,
+                ) AS artistWinRate,
                 RANK() OVER
                 (
-                    ORDER BY COUNT(DISTINCT CASE WHEN g.is_correct = true THEN g.id END) DESC
+                    ORDER BY COUNT(DISTINCT CASE WHEN g.accuracy = 'CORRECT' THEN 1 END) DESC
                 ) AS guesserRank,
                 RANK() OVER
                 (
                     ORDER BY COALESCE
                     (
-                        (COUNT(DISTINCT CASE WHEN g_art.is_correct = true THEN g_art.id END) * 100.0) / 
-                        NULLIF(COUNT(DISTINCT g_art.id), 0), 
+                        (COUNT(DISTINCT CASE WHEN g_art.accuracy = 'CORRECT' THEN 1 END) * 100.0) / 
+                        NULLIF(COUNT(DISTINCT CASE WHEN g_art.user_id IS NOT NULL AND g_art.sketch_id IS NOT NULL THEN ROW(g_art.user_id, g_art.sketch_id) END), 0),
                         0.0
                     ) DESC
                 ) AS artistRank
@@ -77,10 +78,14 @@ public interface UserRepo extends JpaRepository<User, Long>
             GROUP BY u.id, u.username
         )
         SELECT * FROM leaderboard
-    """, 
-    countQuery = "SELECT COUNT(*) FROM users",
-    nativeQuery = true)
-    Page<LeaderboardEntryProjection> getLeaderboard(Pageable pageable);
+        ORDER BY 
+            CASE WHEN :sortBy = 'guesserRank' THEN guesserRank END ASC,
+            CASE WHEN :sortBy = 'artistRank' THEN artistRank END ASC
+        """, 
+        countQuery = "SELECT COUNT(*) FROM users",
+        nativeQuery = true
+    )
+    Page<LeaderboardEntryProjection> getLeaderboard(@Param("sortBy") String sortBy, Pageable pageable);
 
     @Query
     (value = """
@@ -89,23 +94,23 @@ public interface UserRepo extends JpaRepository<User, Long>
             SELECT 
                 u.id AS userId,
                 u.username AS username,
-                COUNT(DISTINCT CASE WHEN g.is_correct = true THEN g.id END) AS wordsGuessed,
+                COUNT(DISTINCT CASE WHEN g.accuracy = 'CORRECT' THEN 1 END) AS "wordsGuessed",
                 COALESCE
                 (
-                    (COUNT(DISTINCT CASE WHEN g_art.is_correct = true THEN g_art.id END) * 100.0) / 
-                    NULLIF(COUNT(DISTINCT g_art.id), 0), 
+                    (COUNT(DISTINCT CASE WHEN g_art.accuracy = 'CORRECT' THEN 1 END) * 100.0) / 
+                    NULLIF(COUNT(DISTINCT CASE WHEN g_art.user_id IS NOT NULL AND g_art.sketch_id IS NOT NULL THEN ROW(g_art.user_id, g_art.sketch_id) END), 0),
                     0.0
-                ) AS artistSuccessRate,
+                ) AS artistWinRate,
                 RANK() OVER
                 (
-                    ORDER BY COUNT(DISTINCT CASE WHEN g.is_correct = true THEN g.id END) DESC
+                    ORDER BY COUNT(DISTINCT CASE WHEN g.accuracy = 'CORRECT' THEN 1 END) DESC
                 ) AS guesserRank,
                 RANK() OVER
                 (
                     ORDER BY COALESCE
                     (
-                        (COUNT(DISTINCT CASE WHEN g_art.is_correct = true THEN g_art.id END) * 100.0) / 
-                        NULLIF(COUNT(DISTINCT g_art.id), 0), 
+                        (COUNT(DISTINCT CASE WHEN g_art.accuracy = 'CORRECT' THEN 1 END) * 100.0) / 
+                        NULLIF(COUNT(DISTINCT CASE WHEN g_art.user_id IS NOT NULL AND g_art.sketch_id IS NOT NULL THEN ROW(g_art.user_id, g_art.sketch_id) END), 0),
                         0.0
                     ) DESC
                 ) AS artistRank
