@@ -1,0 +1,117 @@
+.navbar
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 72px;
+  height: 100vh;
+  background-color: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0.5rem;
+  box-sizing: border-box;
+  z-index: 1000;
+  transition: width 0.2s ease-in-out;
+  overflow: hidden;
+
+  &:hover
+  {
+    width: 240px;
+
+    .logo-text, .label
+    {
+      display: inline-block !important;
+    }
+  }
+
+  .nav-brand
+  {
+    padding: 0.5rem 0.5rem 2rem 0.5rem;
+
+    a
+    {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-size: 1.4rem;
+      font-weight: bold;
+      white-space: nowrap;
+
+      .logo-icon
+      {
+        font-size: 1.8rem;
+        color: var(--accent-color);
+        min-width: 40px;
+        text-align: center;
+      }
+
+      .logo-text
+      {
+        display: none;
+      }
+    }
+  }
+
+  .nav-links
+  {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 100%;
+
+    li
+    {
+      a, .btn-logout
+      {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        padding: 0.8rem 0.5rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: background-color 0.2s ease;
+        width: 100%;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        white-space: nowrap;
+
+        &:hover
+        {
+          background-color: var(--bg-hover);
+        }
+
+        &.active
+        {
+          font-weight: bold;
+        }
+
+        .icon
+        {
+          font-size: 1.5rem;
+          min-width: 40px;
+          text-align: center;
+        }
+
+        .label
+        {
+          display: none;
+        }
+      }
+    }
+
+    .logout-item
+    {
+      margin-top: auto;
+    }
+  }
+}
