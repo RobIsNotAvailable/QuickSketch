@@ -7,7 +7,12 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   width: 100%;
   max-width: 420px;
-  margin: 2rem auto 0 auto;
+  
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
 
   h2
   {
@@ -29,6 +34,10 @@
     margin-bottom: 1.5rem;
     font-size: 0.9rem;
     text-align: center;
+    font-weight: 600;
+    
+    box-sizing: border-box;
+    width: 100%;
   }
 
   .form-field-structure
@@ -103,11 +112,17 @@
       &:focus ~ label,
       &:not(:placeholder-shown) ~ label
       {
-        top: -1px;
-        left: 15px;
+        top: 0px;
+        left: 14px;
         font-size: 0.85rem;
         font-weight: 700;
-        background: var(--bg-secondary);
+        background: linear-gradient(
+          to bottom, 
+          var(--bg-secondary) 0%, 
+          var(--bg-secondary) 50%, 
+          var(--bg-primary) 50%, 
+          var(--bg-primary) 100%
+        );
         padding: 0 6px;
         color: var(--accent-color);
       }
@@ -115,6 +130,25 @@
       &:focus
       {
         border-color: var(--accent-color);
+      }
+    }
+
+    &.has-error
+    {
+      input
+      {
+        border-color: var(--danger-color);
+
+        &:focus ~ label,
+        &:not(:placeholder-shown) ~ label
+        {
+          color: var(--danger-color);
+        }
+
+        &:focus
+        {
+          border-color: var(--danger-color);
+        }
       }
     }
   }
@@ -130,18 +164,19 @@
     font-weight: bold;
     font-size: 1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 
     &:disabled
     {
       background: var(--border-color);
+      color: var(--text-secondary);
       cursor: not-allowed;
+      opacity: 0.6;
     }
 
     &:hover:not(:disabled)
     {
-      opacity: 0.9;
-      transform: translateY(-2px);
+      filter: brightness(0.85);
     }
   }
 
@@ -174,12 +209,12 @@
       cursor: pointer;
       text-decoration: none;
       box-sizing: border-box;
-      transition: all 0.3s ease;
+      transition: filter 0.2s ease, background-color 0.2s ease;
 
       &:hover
       {
         background: var(--bg-hover);
-        transform: translateY(-2px);
+        filter: brightness(0.85);
       }
     }
   }

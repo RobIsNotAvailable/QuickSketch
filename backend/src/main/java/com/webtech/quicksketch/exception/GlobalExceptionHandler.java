@@ -25,7 +25,7 @@ public class GlobalExceptionHandler
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException e)
     {
-        List<String> priorityOrder = List.of("email", "username", "password");
+        List<String> priorityOrder = List.of("username", "email", "password");
 
         String errorMessage = e.getBindingResult()
                 .getFieldErrors()
