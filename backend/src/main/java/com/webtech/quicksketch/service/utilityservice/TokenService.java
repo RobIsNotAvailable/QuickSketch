@@ -41,6 +41,7 @@ public class TokenService
     {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
+        claims.put("username", user.getUsername());
 
         return Jwts.builder()
                 .claims(claims)

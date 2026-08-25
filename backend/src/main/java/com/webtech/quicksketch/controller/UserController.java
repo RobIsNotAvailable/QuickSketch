@@ -1,5 +1,6 @@
 package com.webtech.quicksketch.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.webtech.quicksketch.dto.response.LeaderboardResponse;
+import com.webtech.quicksketch.dto.response.UserResponse;
 import com.webtech.quicksketch.dto.response.UserStatsResponse;
 import com.webtech.quicksketch.service.UserService;
 
@@ -45,5 +47,19 @@ public class UserController
     {
         LeaderboardResponse leaderboard = userService.getLeaderboard(sortBy, pageable);
         return ResponseEntity.ok(leaderboard);
+    }
+
+    @GetMapping("/{userId}/followers")
+    public ResponseEntity<Page<UserResponse>> getFollowers(@PathVariable Long userId, Pageable pageable)
+    {
+        Page<UserResponse> followers = userService.getFollowers(userId, pageable);
+        return ResponseEntity.ok(followers);
+    }
+
+    @GetMapping("/{userId}/followed")
+    public ResponseEntity<Page<UserResponse>> getFollowed(@PathVariable Long userId, Pageable pageable)
+    {
+        Page<UserResponse> followed = userService.getFollowed(userId, pageable);
+        return ResponseEntity.ok(followed);
     }
 }

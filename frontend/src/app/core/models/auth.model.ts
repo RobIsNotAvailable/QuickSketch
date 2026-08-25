@@ -13,8 +13,6 @@ export interface RegisterRequest
 
 export interface AuthResponse
 {
-  accessToken: string;
-  refreshToken: string;
-  username: string;
-  userId: number;
+  jwt: string;
+  refresh: string;
 }

@@ -52,6 +52,7 @@ export class AuthService
   {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userId');
     localStorage.removeItem('username');
     this.currentUser.set(null);
   }
@@ -71,11 +72,43 @@ export class AuthService
     return !!this.getAccessToken();
   }
 
-  private saveTokens(response: AuthResponse): void
+private saveTokens(response: AuthResponse): void
   {
-    localStorage.setItem('accessToken', response.accessToken);
-    localStorage.setItem('refreshToken', response.refreshToken);
-    localStorage.setItem('username', response.username);
-    this.currentUser.set(response.username);
+    localStorage.setItem('accessToken', response.jwt);
+    localStorage.setItem('refreshToken', response.refresh);
+
+    const tokenData = this.decodeToken(response.jwt);
+
+    if (tokenData)
+    {
+      const username = tokenData.username || tokenData.sub;
+      const userId = tokenData.userId;
+
+      if (username)
+      {
+        localStorage.setItem('username', username);
+        this.currentUser.set(username);
+      }
+
+      if (userId)
+      {
+        localStorage.setItem('userId', userId.toString());
+      }
+    }
+  }
+
+  private decodeToken(token: string): any
+  {
+    try
+    {
+      const payload = token.split('.')[1];
+      const decodedJson = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decodedJson);
+    }
+    catch (e)
+    {
+      console.error('Error decoding token:', e);
+      return null;
+    }
   }
 }

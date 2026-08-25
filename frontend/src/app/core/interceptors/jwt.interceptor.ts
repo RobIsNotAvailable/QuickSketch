@@ -25,7 +25,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
           switchMap(newTokens => {
             const newReq = req.clone({
               setHeaders: {
-                Authorization: `Bearer ${newTokens.accessToken}`
+                Authorization: `Bearer ${newTokens.jwt}`
               }
             });
             return next(newReq);

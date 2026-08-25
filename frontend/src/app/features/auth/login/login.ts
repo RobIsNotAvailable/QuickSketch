@@ -29,8 +29,21 @@ export class Login
     this.showPassword.update(val => !val);
   }
 
+  isFormValid(): boolean
+  {
+    return (
+      this.credentials.key.trim() !== '' &&
+      this.credentials.password.trim() !== ''
+    );
+  }
+
   onSubmit(): void
   {
+    if (!this.isFormValid())
+    {
+      return;
+    }
+    
     this.errorMessage.set(null);
 
     this.authService.login(this.credentials).subscribe({

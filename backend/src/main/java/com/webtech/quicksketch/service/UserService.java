@@ -12,6 +12,7 @@ import com.webtech.quicksketch.dto.request.RefreshTokenRequest;
 import com.webtech.quicksketch.dto.request.RegisterRequest;
 import com.webtech.quicksketch.dto.response.AuthResponse;
 import com.webtech.quicksketch.dto.response.LeaderboardResponse;
+import com.webtech.quicksketch.dto.response.UserResponse;
 import com.webtech.quicksketch.dto.response.UserStatsResponse;
 import com.webtech.quicksketch.model.RefreshToken;
 import com.webtech.quicksketch.model.User;
@@ -176,5 +177,20 @@ public class UserService
 
 
         return new LeaderboardResponse(userStats, leaderboardPage);
+    }
+
+    public Page<UserResponse> getFollowed(Long userId, Pageable pageable)
+    {
+        return repo.getFollowed(userId, pageable).map(this::mapToUserResponse);
+    }
+
+    public Page<UserResponse> getFollowers(Long userId, Pageable pageable)
+    {
+        return repo.getFollowers(userId, pageable).map(this::mapToUserResponse);
+    }
+
+    private UserResponse mapToUserResponse(User user)
+    {
+        return new UserResponse(user.getId(), user.getUsername());
     }
 }

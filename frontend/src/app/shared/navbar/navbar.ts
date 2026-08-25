@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
-@Component({
+@Component
+({
   selector: 'app-navbar',
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
@@ -12,9 +13,11 @@ import { AuthService } from '../../core/services/auth.service';
 export class Navbar
 {
   authService = inject(AuthService);
+  private router = inject(Router);
 
   onLogout(): void
   {
     this.authService.logout();
+    this.router.navigate(['/']);
   }
 }

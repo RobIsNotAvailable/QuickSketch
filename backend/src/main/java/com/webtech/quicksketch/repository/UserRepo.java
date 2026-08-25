@@ -123,5 +123,21 @@ public interface UserRepo extends JpaRepository<User, Long>
         SELECT * FROM leaderboard WHERE userId = :userId
     """, nativeQuery = true)
     Optional<LeaderboardEntryProjection> getLeaderboardEntryByUserId(@Param("userId") Long userId);
+
+    @Query
+    (value = """
+        SELECT u.* FROM users u
+        JOIN follows f ON u.id = f.followed_id
+        WHERE f.follower_id = :userId
+    """, nativeQuery = true)
+    Page<User> getFollowed(@Param("userId") Long userId, Pageable pageable);
+
+    @Query
+    (value = """
+        SELECT u.* FROM users u
+        JOIN follows f ON u.id = f.follower_id
+        WHERE f.followed_id = :userId
+    """, nativeQuery = true)
+    Page<User> getFollowers(@Param("userId") Long userId, Pageable pageable);
 }
 

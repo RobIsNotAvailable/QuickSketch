@@ -1,21 +1,15 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Feed } from './feed';
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
-describe('Feed', () => {
-  let component: Feed;
-  let fixture: ComponentFixture<Feed>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Feed],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(Feed);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+@Component({
+  selector: 'app-feed',
+  standalone: true,
+  imports: [RouterLink, RouterLinkActive],
+  styleUrl: './feed.scss',
+  templateUrl: './feed.html',
+})
+export class Feed
+{
+  authService = inject(AuthService);
+}
