@@ -1,13 +1,29 @@
-import { Brushstroke } from './brushstroke.model';
 
 export type UserReaction = 'LIKE' | 'DISLIKE' | 'NONE';
+
+export interface WordDto
+{
+  id: number;
+  text: string;
+}
+
+export interface SketchInitResponse
+{
+  words: WordDto[];
+  timeLimitSeconds: number;
+}
+
+export interface Point
+{
+  x: number;
+  y: number;
+}
 
 export interface Sketch
 {
   id: number;
   authorUsername: string;
   authorId: number;
-  brushstrokes: Brushstroke[];
   targetWord?: string;
   likesCount: number;
   dislikesCount: number;

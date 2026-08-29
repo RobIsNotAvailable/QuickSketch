@@ -13,6 +13,7 @@ export class AuthService
   private readonly apiUrl = `${environment.apiUrl}/auth`;
 
   currentUser = signal<string | null>(localStorage.getItem('username'));
+  isLoggingOut = signal<boolean>(false);
 
   login(credentials: LoginRequest): Observable<AuthResponse>
   {
@@ -50,6 +51,7 @@ export class AuthService
 
   logout(): void
   {
+    this.isLoggingOut.set(true);
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userId');
@@ -72,7 +74,7 @@ export class AuthService
     return !!this.getAccessToken();
   }
 
-private saveTokens(response: AuthResponse): void
+  private saveTokens(response: AuthResponse): void
   {
     localStorage.setItem('accessToken', response.jwt);
     localStorage.setItem('refreshToken', response.refresh);

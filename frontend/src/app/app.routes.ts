@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { sketchDeactivateGuard } from './core/guards/sketch-deactivate.guard';
 
 export const routes: Routes = [
   {
@@ -10,6 +11,10 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () => import('./features/auth/login/login').then(m => m.Login),
     canActivate: [authGuard]
+  },
+  {
+    path: 'logout',
+    loadComponent: () => import('./features/auth/logout/logout').then(m => m.Logout)
   },
   {
     path: 'register',
@@ -28,7 +33,8 @@ export const routes: Routes = [
   {
     path: 'sketcher',
     loadComponent: () => import('./features/sketcher/sketcher').then(m => m.Sketcher),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    canDeactivate: [sketchDeactivateGuard]
   },
   {
     path: 'profile/:username',
