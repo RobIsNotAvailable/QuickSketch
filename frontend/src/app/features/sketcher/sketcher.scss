@@ -57,6 +57,7 @@
         {
           width: 100%;
           background: transparent;
+          text-transform: capitalize;
           border: 2px solid var(--border-color);
           color: var(--text-primary);
           padding: 15px;
@@ -104,6 +105,7 @@
 
       .word-display
       {
+        text-transform: capitalize;
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
@@ -409,7 +411,6 @@
 @keyframes popInAndOut
 {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-  15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  15%, 85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
 }

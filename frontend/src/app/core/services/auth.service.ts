@@ -50,14 +50,22 @@ export class AuthService
   }
 
   logout(): void
-  {
-    this.isLoggingOut.set(true);
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username');
-    this.currentUser.set(null);
-  }
+    {
+      this.isLoggingOut.set(true);
+      
+      this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
+        next: () => {
+          localStorage.clear();
+          this.currentUser.set(null);
+          this.isLoggingOut.set(false);
+        },
+        error: () => {
+          localStorage.clear();
+          this.currentUser.set(null);
+          this.isLoggingOut.set(false);
+        }
+      });
+    }
 
   getAccessToken(): string | null
   {

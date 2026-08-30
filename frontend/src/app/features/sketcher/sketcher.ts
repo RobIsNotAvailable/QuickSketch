@@ -426,7 +426,6 @@ export class Sketcher implements OnInit, OnDestroy
     ({
       next: () => 
       {
-        this.isPublishing.set(false);
         this.router.navigate(['/']);
       },
       error: (err) => 

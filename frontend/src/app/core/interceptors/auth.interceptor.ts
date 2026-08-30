@@ -9,7 +9,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   let authReq = req;
 
-  if (token && !req.url.includes('/auth/login') && !req.url.includes('/auth/register'))
+  if (token && !req.url.includes('/auth/login') && !req.url.includes('/auth/register') && !req.url.includes('/auth/refresh'))
   {
     authReq = req.clone({
       setHeaders: {
@@ -20,7 +20,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !req.url.includes('/auth/refresh') && !req.url.includes('/auth/login'))
+      if (error.status === 401 && !req.url.includes('/auth/refresh') && !req.url.includes('/auth/login') && !req.url.includes('/auth/logout'))
       {
         return authService.refreshToken().pipe(
           switchMap((response) => {
