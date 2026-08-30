@@ -6,7 +6,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './confirm-modal.html',
-  styleUrl: './confirm-modal.scss'
+  styleUrl: '../modal.scss'
 })
 export class ConfirmModal
 {

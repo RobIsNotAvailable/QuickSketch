@@ -1,0 +1,12 @@
+@if (errorService.errorMessage())
+{
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h2>Error</h2>
+      <p>{{ errorService.errorMessage() }}</p>
+      <div class="modal-actions">
+        <button class="btn-confirm" (click)="close()">OK</button>
+      </div>
+    </div>
+  </div>
+}

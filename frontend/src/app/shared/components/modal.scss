@@ -1,4 +1,4 @@
-.confirm-modal-overlay
+.modal-overlay
 {
   position: fixed;
   top: 0;
@@ -12,7 +12,7 @@
   z-index: 9999;
   backdrop-filter: blur(5px);
 
-  .confirm-modal-content
+  .modal-content
   {
     background: var(--bg-secondary);
     padding: 40px;
