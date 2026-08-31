@@ -15,16 +15,22 @@
     @else if (sketches().length === 0)
     {
       <div class="feed-status">
-        <p>No sketches found here yet</p>
+        <p>No sketches found here yet...</p>
       </div>
     }
     @else
     {
       @for (sketch of sketches(); track sketch.id)
       {
-        <app-post-card [sketch]="sketch"></app-post-card>
+        <app-post-card [sketch]="sketch" (openCommentsDrawer)="openComments($event)"></app-post-card>
       }
     }
   </div>
+
+  <app-comments-drawer
+    [sketchId]="activeSketchId()"
+    [isOpen]="isCommentsDrawerOpen()"
+    (closeDrawer)="closeComments()">
+  </app-comments-drawer>
 
 </div>

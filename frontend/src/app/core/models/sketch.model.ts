@@ -1,3 +1,4 @@
+import { UserSummaryResponse } from './user.model';
 
 export type UserReaction = 'LIKE' | 'DISLIKE';
 
@@ -17,12 +18,6 @@ export interface Point
 {
   x: number;
   y: number;
-}
-
-export interface UserSummaryResponse
-{
-  id: number;
-  username: string;
 }
 
 export interface Sketch

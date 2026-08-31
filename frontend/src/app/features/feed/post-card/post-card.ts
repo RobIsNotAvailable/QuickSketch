@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Sketch } from '../../../core/models/sketch.model';
@@ -17,6 +17,7 @@ import { ConfirmModal } from '../../../shared/components/confirm-modal/confirm-m
 export class PostCard
 {
   @Input({ required: true }) sketch!: Sketch;
+  @Output() openCommentsDrawer = new EventEmitter<number>();
 
   authService = inject(AuthService);
   sketchService = inject(SketchService);
@@ -198,6 +199,7 @@ export class PostCard
       this.showFeedback('Guess the word first to view comments!');
       return;
     }
+    this.openCommentsDrawer.emit(this.sketch.id);
   }
 
   timeAgo(dateString: string): string

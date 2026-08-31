@@ -2,7 +2,7 @@
 {
   width: 100%;
   max-width: 600px;
-  margin: 0 auto;
+  min-width: 600px;
   display: flex;
   flex-direction: column;
 
@@ -54,5 +54,10 @@
     {
       opacity: 0.4;
     }
+  }
+  .feed-status
+  {
+    text-align: center;
+    padding: 60px;
   }
 }
