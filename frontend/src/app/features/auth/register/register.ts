@@ -23,13 +23,21 @@ export class Register
     password: ''
   };
 
+  confirmPassword = signal<string>('');
+
   errorMessage = signal<string | null>(null);
   fieldErrors = signal<{ [key: string]: boolean }>({});
   showPassword = signal<boolean>(false);
+  showConfirmPassword = signal<boolean>(false);
 
   togglePasswordVisibility(): void
   {
     this.showPassword.update((val) => !val);
+  }
+
+  toggleConfirmPasswordVisibility(): void
+  {
+    this.showConfirmPassword.update((val) => !val);
   }
 
   isFormValid(): boolean
@@ -37,7 +45,8 @@ export class Register
     return (
       this.credentials.username.trim() !== '' &&
       this.credentials.email.trim() !== '' &&
-      this.credentials.password.trim() !== ''
+      this.credentials.password.trim() !== '' &&
+      this.confirmPassword().trim() !== ''
     );
   }
 
@@ -53,6 +62,13 @@ export class Register
   {
     if (!this.isFormValid())
     {
+      return;
+    }
+
+    if (this.credentials.password !== this.confirmPassword())
+    {
+      this.errorMessage.set('Passwords do not match.');
+      this.fieldErrors.update((errors) => ({ ...errors, password: true, confirmPassword: true }));
       return;
     }
 

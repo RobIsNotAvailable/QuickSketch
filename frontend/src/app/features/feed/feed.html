@@ -1,12 +1,30 @@
 <div class="feed-container">
   
   <div class="feed-header">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">For You</a>
-      <a routerLink="/following" routerLinkActive="active">Following</a>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="loadFeed()">For You</a>
+    <a routerLink="/following" routerLinkActive="active" (click)="loadFeed()">Following</a>
   </div>
 
   <div class="feed-content">
-    <p>feed works!</p>
+    @if (loading())
+    {
+      <div class="feed-status">
+        <i class="bx bx-loader-alt bx-spin"></i>
+      </div>
+    }
+    @else if (sketches().length === 0)
+    {
+      <div class="feed-status">
+        <p>No sketches found here yet</p>
+      </div>
+    }
+    @else
+    {
+      @for (sketch of sketches(); track sketch.id)
+      {
+        <app-post-card [sketch]="sketch"></app-post-card>
+      }
+    }
   </div>
 
 </div>

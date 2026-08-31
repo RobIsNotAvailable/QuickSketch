@@ -9,22 +9,17 @@ export const authGuard: CanActivateFn = (route) =>
   
   const isLoggedIn = authService.isLoggedIn();
   const targetPath = route.routeConfig?.path;
+  const isAuthRoute = targetPath === 'login' || targetPath === 'register';
 
-  if (targetPath === 'login' || targetPath === 'register')
+  if (isAuthRoute && isLoggedIn)
   {
-    if (isLoggedIn)
-    {
-      router.navigate(['/']);
-      return false;
-    }
-    return true;
+    return router.createUrlTree(['/']);
   }
 
-  if (isLoggedIn)
+  if (!isAuthRoute && !isLoggedIn)
   {
-    return true;
+    return router.createUrlTree(['/login']);
   }
 
-  router.navigate(['/login']);
-  return false;
+  return true;
 };

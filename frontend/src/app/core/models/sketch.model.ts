@@ -1,5 +1,5 @@
 
-export type UserReaction = 'LIKE' | 'DISLIKE' | 'NONE';
+export type UserReaction = 'LIKE' | 'DISLIKE';
 
 export interface WordDto
 {
@@ -19,16 +19,25 @@ export interface Point
   y: number;
 }
 
+export interface UserSummaryResponse
+{
+  id: number;
+  username: string;
+}
+
 export interface Sketch
 {
   id: number;
-  authorUsername: string;
-  authorId: number;
-  targetWord?: string;
-  likesCount: number;
-  dislikesCount: number;
-  commentsCount: number;
-  isGuessed: boolean;
-  userReaction: UserReaction;
+  imageData: string;
   createdAt: string;
+  author: UserSummaryResponse;
+  isCompletedByCurrentUser: boolean;
+  targetWord?: string;
+  likes: number;
+  dislikes: number;
+  isUserFollowing: boolean;
+  currentUserReaction: UserReaction;
+  remainingGuesses: number;
+  commentsCount: number;
+  isFollowing?: boolean;
 }

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { SketchService } from '../../core/services/sketch.service';
 import { WordDto, Point } from '../../core/models/sketch.model';
 import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
+import { CanvasService } from '../../core/services/canvas.service';
 
 type Tool = 'pen' | 'eraser' | 'background';
 type GameState = 'LOADING' | 'SELECTING' | 'DRAWING';
@@ -13,6 +14,7 @@ type ModalType = 'publish' | 'exit' | null;
   selector: 'app-sketcher',
   standalone: true,
   imports: [ConfirmModal],
+  providers: [CanvasService],
   templateUrl: './sketcher.html',
   styleUrl: './sketcher.scss'
 })
@@ -23,6 +25,7 @@ export class Sketcher implements OnInit, OnDestroy
 
   private sketchService = inject(SketchService);
   private router = inject(Router);
+  canvasService = inject(CanvasService);
 
   gameState = signal<GameState>('LOADING');
   targetWords = signal<WordDto[]>([]);
@@ -42,36 +45,32 @@ export class Sketcher implements OnInit, OnDestroy
   private exitResolver?: (value: boolean) => void;
 
   predefinedColors = [
-    '#000000', '#444444', '#888888', '#ffffff',
-    '#ff3b30', '#ff9500', '#ffcc00', '#34c759',
-    '#00c7be', '#5ac8fa', '#007aff', '#5856d6',
-    '#af52de', '#ff2d55', '#a2845e', '#ffaaaa'
+    '#1a1a1a', '#f5f5f5', '#7a828a', '#d94141',
+    '#4172d9', '#edd134', '#3d943d', '#e08434',
+    '#824b9a', '#543d2b', '#cfa77a', '#e8a7b5',
+    '#7cbade', '#62c462', '#e0609b', '#bfa036'
   ];
   
   customColors = signal<string[]>([]);
   brushSizes = [2, 5, 12, 25];
 
-  private ctx: CanvasRenderingContext2D | null = null;
-  private isDrawing = false;
-  
-  private canvasHistory: ImageData[] = [];
-  historyStep = signal<number>(-1);
-  historyLength = signal<number>(0);
-
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent): void
   {
-    if (this.gameState() !== 'DRAWING' || this.activeModal() !== null || this.timeLeft() === 0) return;
+    if (this.gameState() !== 'DRAWING' || this.activeModal() !== null || this.timeLeft() === 0)
+    {
+      return;
+    }
 
     if (event.ctrlKey && event.key.toLowerCase() === 'z')
     {
       event.preventDefault();
-      this.undo();
+      this.canvasService.undo();
     }
     else if (event.ctrlKey && event.key.toLowerCase() === 'y')
     {
       event.preventDefault();
-      this.redo();
+      this.canvasService.redo();
     }
   }
 
@@ -164,6 +163,9 @@ export class Sketcher implements OnInit, OnDestroy
         this.timeLeft.set(0);
         this.timeExpired.set(true);
         this.showTimeUpAlert.set(true);
+        
+        this.stopAction();
+        
         setTimeout(() =>
         {
           this.showTimeUpAlert.set(false);
@@ -177,38 +179,8 @@ export class Sketcher implements OnInit, OnDestroy
   {
     if (this.canvasRef && this.canvasRef.nativeElement)
     {
-      const canvas = this.canvasRef.nativeElement;
-      this.ctx = canvas.getContext('2d');
-
-      if(this.ctx)
-      {
-        this.ctx.lineCap = 'round';
-        this.ctx.lineJoin = 'round';
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        this.canvasHistory = [];
-        this.historyStep.set(-1);
-        this.historyLength.set(0);
-        this.saveState();
-      }
+      this.canvasService.initCanvas(this.canvasRef.nativeElement);
     }
-  }
-
-  private saveState(): void
-  {
-    if (!this.ctx) return;
-    
-    const canvas = this.canvasRef.nativeElement;
-    
-    if (this.historyStep() < this.canvasHistory.length - 1)
-    {
-      this.canvasHistory = this.canvasHistory.slice(0, this.historyStep() + 1);
-    }
-    
-    this.canvasHistory.push(this.ctx.getImageData(0, 0, canvas.width, canvas.height));
-    this.historyStep.set(this.canvasHistory.length - 1);
-    this.historyLength.set(this.canvasHistory.length);
   }
 
   selectColor(color: string): void
@@ -242,171 +214,49 @@ export class Sketcher implements OnInit, OnDestroy
     this.selectColor(color);
   }
 
-  private hexToRgba(hex: string): { r: number, g: number, b: number, a: number }
+  startAction(event: MouseEvent): void
   {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16),
-      a: 255
-    } : { r: 0, g: 0, b: 0, a: 255 };
-  }
-
-  private floodFill(startX: number, startY: number, fillColor: string): void
-  {
-    if (!this.ctx) return;
-    const canvas = this.canvasRef.nativeElement;
-    const width = canvas.width;
-    const height = canvas.height;
-    
-    const x = Math.round(startX);
-    const y = Math.round(startY);
-    
-    if (x < 0 || x >= width || y < 0 || y >= height) return;
-    
-    const imageData = this.ctx.getImageData(0, 0, width, height);
-    const data = imageData.data;
-    
-    const targetPos = (y * width + x) * 4;
-    const targetR = data[targetPos];
-    const targetG = data[targetPos + 1];
-    const targetB = data[targetPos + 2];
-    const targetA = data[targetPos + 3];
-    
-    const fillRgba = this.hexToRgba(fillColor);
-    
-    if (targetR === fillRgba.r && targetG === fillRgba.g && targetB === fillRgba.b && targetA === fillRgba.a)
+    if (this.activeModal() !== null || this.timeLeft() === 0)
     {
       return;
     }
-    
-    const matchStartColor = (pos: number) =>
-    {
-      return data[pos] === targetR &&
-             data[pos + 1] === targetG &&
-             data[pos + 2] === targetB &&
-             data[pos + 3] === targetA;
-    };
-    
-    const colorPixel = (pos: number) =>
-    {
-      data[pos] = fillRgba.r;
-      data[pos + 1] = fillRgba.g;
-      data[pos + 2] = fillRgba.b;
-      data[pos + 3] = fillRgba.a;
-    };
-    
-    const stack = [x, y];
-    
-    while (stack.length > 0)
-    {
-      const curY = stack.pop()!;
-      const curX = stack.pop()!;
-      
-      const pos = (curY * width + curX) * 4;
-      if (!matchStartColor(pos)) continue;
-      
-      let leftX = curX;
-      while (leftX > 0 && matchStartColor((curY * width + leftX - 1) * 4))
-      {
-        leftX--;
-      }
-      
-      let rightX = curX;
-      while (rightX < width - 1 && matchStartColor((curY * width + rightX + 1) * 4))
-      {
-        rightX++;
-      }
-      
-      for (let ix = leftX; ix <= rightX; ix++)
-      {
-        colorPixel((curY * width + ix) * 4);
-        
-        if (curY > 0 && matchStartColor(((curY - 1) * width + ix) * 4))
-        {
-          stack.push(ix, curY - 1);
-        }
-        if (curY < height - 1 && matchStartColor(((curY + 1) * width + ix) * 4))
-        {
-          stack.push(ix, curY + 1);
-        }
-      }
-    }
-    
-    this.ctx.putImageData(imageData, 0, 0);
-  }
-
-  startAction(event: MouseEvent): void
-  {
-    if(!this.ctx || this.activeModal() !== null || this.timeLeft() === 0) return;
 
     const { x, y } = this.getCoordinates(event);
 
     if (this.currentTool() === 'background')
     {
-      this.floodFill(x, y, this.currentColor());
-      this.saveState();
+      this.canvasService.floodFill(x, y, this.currentColor());
+      this.canvasService.saveState();
       return;
     }
 
-    this.isDrawing = true;
-    this.ctx.beginPath();
-    this.ctx.moveTo(x, y);
+    this.canvasService.startDrawing(x, y);
   }
 
   draw(event: MouseEvent): void
   {
-    if(!this.isDrawing || !this.ctx || this.activeModal() !== null || this.timeLeft() === 0) return;
+    if (this.activeModal() !== null || this.timeLeft() === 0)
+    {
+      return;
+    }
 
     const { x, y } = this.getCoordinates(event);
     const activeColor = this.currentTool() === 'eraser' ? '#ffffff' : this.currentColor();
 
-    this.ctx.lineWidth = this.currentSize();
-    this.ctx.strokeStyle = activeColor;
-    this.ctx.lineTo(x, y);
-    this.ctx.stroke();
+    this.canvasService.draw(x, y, activeColor, this.currentSize());
   }
 
   stopAction(): void
   {
-    if(this.isDrawing)
-    {
-      this.isDrawing = false;
-      this.saveState();
-    }
-  }
-
-  undo(): void
-  {
-    if (this.historyStep() > 0)
-    {
-      this.historyStep.set(this.historyStep() - 1);
-      this.ctx?.putImageData(this.canvasHistory[this.historyStep()], 0, 0);
-    }
-  }
-
-  redo(): void
-  {
-    if (this.historyStep() < this.canvasHistory.length - 1)
-    {
-      this.historyStep.set(this.historyStep() + 1);
-      this.ctx?.putImageData(this.canvasHistory[this.historyStep()], 0, 0);
-    }
-  }
-
-  clearCanvas(): void
-  {
-    if(!this.ctx) return;
-    const canvas = this.canvasRef.nativeElement;
-    this.ctx.fillStyle = '#ffffff';
-    this.ctx.fillRect(0, 0, canvas.width, canvas.height);
-    this.saveState();
+    this.canvasService.stopDrawing();
   }
 
   onSave(): void
   {
-    if(this.historyStep() === 0 || this.isPublishing() || !this.selectedWord()) return;
+    if (this.canvasService.historyStep() === 0 || this.isPublishing() || !this.selectedWord())
+    {
+      return;
+    }
 
     if (this.timerInterval)
     {

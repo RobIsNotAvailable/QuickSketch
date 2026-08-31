@@ -8,14 +8,12 @@
     </div>
   }
 
-  <form (ngSubmit)="onSubmit()" class="auth-form">
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
     <div class="form-field-structure">
       <input
         type="text"
         id="key"
-        name="key"
-        [(ngModel)]="credentials.key"
-        required
+        formControlName="key"
         placeholder=" "
       />
       <label for="key">Username/Email</label>
@@ -26,9 +24,7 @@
         <input
           [type]="showPassword() ? 'text' : 'password'"
           id="password"
-          name="password"
-          [(ngModel)]="credentials.password"
-          required
+          formControlName="password"
           placeholder=" "
         />
         <label for="password">Password</label>
@@ -38,7 +34,7 @@
       </div>
     </div>
 
-    <button type="submit" class="btn-black" [disabled]="!isFormValid()">
+    <button type="submit" class="btn-black" [disabled]="loginForm.invalid">
       Log In
     </button>
   </form>

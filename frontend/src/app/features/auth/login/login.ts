@@ -1,25 +1,25 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { LoginRequest } from '../../../core/models/auth.model';
 
 @Component
 ({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink], // Sostituito FormsModule
   templateUrl: './login.html',
 })
 export class Login
 {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
 
-  credentials: LoginRequest =
-  {
-    key: '',
-    password: ''
-  };
+  loginForm = this.fb.nonNullable.group
+  ({
+    key: ['', Validators.required],
+    password: ['', Validators.required]
+  });
 
   showPassword = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
@@ -29,28 +29,23 @@ export class Login
     this.showPassword.update(val => !val);
   }
 
-  isFormValid(): boolean
-  {
-    return (
-      this.credentials.key.trim() !== '' &&
-      this.credentials.password.trim() !== ''
-    );
-  }
-
   onSubmit(): void
   {
-    if (!this.isFormValid())
+    if (this.loginForm.invalid)
     {
       return;
     }
     
     this.errorMessage.set(null);
 
-    this.authService.login(this.credentials).subscribe({
-      next: () => {
+    this.authService.login(this.loginForm.getRawValue()).subscribe
+    ({
+      next: () => 
+      {
         this.router.navigate(['/']);
       },
-      error: (err) => {
+      error: (err) => 
+      {
         this.errorMessage.set(err.error?.message || 'Invalid credentials');
       }
     });

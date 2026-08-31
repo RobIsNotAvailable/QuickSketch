@@ -123,6 +123,8 @@ public class SketchService
         int likes = reactionRepo.countBySketchIdAndType(sketchId, ReactionType.LIKE);
         int dislikes = reactionRepo.countBySketchIdAndType(sketchId, ReactionType.DISLIKE);
 
+        Boolean isUserFollowing = userRepo.isFollowing(userId, sketch.getAuthor().getId());
+
         ReactionType userReaction = null;
 
         int remainingGuesses = 0;
@@ -150,6 +152,7 @@ public class SketchService
             likes,
             dislikes,
             userReaction,
+            isUserFollowing,
             remainingGuesses,
             commentsCount
         );

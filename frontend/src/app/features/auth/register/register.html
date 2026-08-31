@@ -57,6 +57,28 @@
       </div>
     </div>
 
+    <div class="form-field-structure" [class.has-error]="fieldErrors()['confirmPassword']">
+      <div class="input-wrapper">
+        <input
+          [type]="showConfirmPassword() ? 'text' : 'password'"
+          id="confirmPassword"
+          name="confirmPassword"
+          placeholder=" "
+          [(ngModel)]="confirmPassword"
+          (input)="clearFieldError('confirmPassword')"
+          required
+        />
+        <label for="confirmPassword">Confirm Password</label>
+        <button
+          type="button"
+          class="toggle-password"
+          (click)="toggleConfirmPasswordVisibility()"
+        >
+          <i [class]="showConfirmPassword() ? 'bx bx-show' : 'bx bx-hide'"></i>
+        </button>
+      </div>
+    </div>
+
     <button type="submit" class="btn-black" [disabled]="!isFormValid()">
       Sign Up
     </button>
