@@ -84,7 +84,7 @@ export class PostCard
         }
         else if (res.accuracy === 'CLOSE')
         {
-          this.showFeedback('So close! Keep trying.', 'warning');
+          this.showFeedback(this.guessText() + ' is pretty close!', 'warning');
         }
         else
         {

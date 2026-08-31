@@ -33,30 +33,28 @@
     @if (isCompleted())
     {
       <div class="word-revealed">
-        <span class="label">Word:</span>
         <span class="word">{{ sketch.targetWord }}</span>
       </div>
     }
     @else if (authService.isLoggedIn())
     {
       <div class="guess-section">
-        <div class="guess-header">
-          <span class="guesses-left">Guesses left: {{ sketch.remainingGuesses }}</span>
-        </div>
-        
-        <div class="guess-input-wrapper">
-          <input
-            type="text"
-            placeholder="What is this drawing?"
-            [(ngModel)]="guessText"
-            (keyup.enter)="submitGuess()"
-          />
+        <div class="guess-input-container">
+          <div class="guess-input-wrapper">
+            <input
+              type="text"
+              placeholder="Guess here"
+              [(ngModel)]="guessText"
+              (keyup.enter)="submitGuess()"
+            />
+          </div>
+          <span class="guesses-left-badge">{{ sketch.remainingGuesses }} left</span>
         </div>
         
         <div class="guess-actions">
           <button class="btn-black" (click)="submitGuess()" [disabled]="!guessText().trim()">Guess</button>
           <button class="btn-giveup" (click)="giveUp()" title="Give Up">
-            <i class="bx bx-flag"></i>
+            <i class="bx bxs-flag-alt"></i>
           </button>
         </div>
       </div>
@@ -70,21 +68,6 @@
     }
   </div>
 
-  @if (feedbackMessage())
-  {
-    <div class="inline-feedback-popup" 
-         [class.warning]="feedbackType() === 'warning'"
-         [class.success]="feedbackType() === 'success'">
-      
-      <i class="bx" 
-         [class.bx-info-circle]="feedbackType() === 'error'" 
-         [class.bxs-hot]="feedbackType() === 'warning'"
-         [class.bx-check-circle]="feedbackType() === 'success'">
-      </i>
-      <span>{{ feedbackMessage() }}</span>
-    </div>
-  }
-
   <div class="post-footer" [class.logged-out]="!authService.isLoggedIn()">
     <div class="actions-group" [class.disabled-action]="!isCompleted()">
       <button class="action-btn" (click)="handleReaction('LIKE', $event)" [class.active-like]="sketch.currentUserReaction === 'LIKE'">
@@ -93,10 +76,24 @@
       </button>
 
       <button class="action-btn" (click)="handleReaction('DISLIKE', $event)" [class.active-dislike]="sketch.currentUserReaction === 'DISLIKE'">
-        <i class="bx bxs-downvote"></i>
+        <i class="bx bx-downvote"></i>
         <span>{{ sketch.dislikes }}</span>
       </button>
     </div>
+
+    @if (feedbackMessage())
+      {
+        <div class="inline-feedback-toast" 
+            [class.warning]="feedbackType() === 'warning'"
+            [class.success]="feedbackType() === 'success'">
+          <i class="bx" 
+            [class.bx-info-circle]="feedbackType() === 'error'" 
+            [class.bxs-hot]="feedbackType() === 'warning'"
+            [class.bx-check-circle]="feedbackType() === 'success'">
+          </i>
+          <span>{{ feedbackMessage() }}</span>
+        </div>
+      }
 
     <div class="actions-group" [class.disabled-action]="!isCompleted()">
       <button class="action-btn" (click)="openComments()">
