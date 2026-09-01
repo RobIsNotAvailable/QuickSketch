@@ -44,7 +44,7 @@ public class SecurityConfig
                 .requestMatchers("/api/comments/create").authenticated()
                 .requestMatchers("/api/comments/**").permitAll()
 
-                .requestMatchers("/api/heartbeat").permitAll()
+                .requestMatchers("/api/heartbeat/**").permitAll()
 
                 .anyRequest().authenticated()
             )
