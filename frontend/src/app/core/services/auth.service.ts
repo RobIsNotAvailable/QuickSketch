@@ -51,24 +51,26 @@ export class AuthService
   }
 
   logout(): void
-    {
+  {
+      const token = this.getAccessToken();
+
       this.isLoggingOut.set(true);
-      
-      this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
-        next: () => {
-          localStorage.clear();
-          this.currentUser.set(null);
-          this.currentUserId.set(null);
-          this.isLoggingOut.set(false);
-        },
-        error: () => {
-          localStorage.clear();
-          this.currentUser.set(null);
-          this.currentUserId.set(null);
-          this.isLoggingOut.set(false);
-        }
-      });
-    }
+      localStorage.clear();
+      this.currentUser.set(null);
+      this.currentUserId.set(null);
+      this.isLoggingOut.set(false);
+
+      if(token)
+      {
+          this.http.post(`${this.apiUrl}/logout`, {}, {
+              headers: { Authorization: `Bearer ${token}` }
+          }).subscribe
+          ({
+              next: () => {},
+              error: () => {}
+          });
+      }
+  }
 
   getAccessToken(): string | null
   {
