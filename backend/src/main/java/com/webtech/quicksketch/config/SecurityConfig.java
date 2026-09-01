@@ -44,6 +44,8 @@ public class SecurityConfig
                 .requestMatchers("/api/comments/create").authenticated()
                 .requestMatchers("/api/comments/**").permitAll()
 
+                .requestMatchers("/api/bombo").permitAll()
+
                 .anyRequest().authenticated()
             )
             .sessionManagement

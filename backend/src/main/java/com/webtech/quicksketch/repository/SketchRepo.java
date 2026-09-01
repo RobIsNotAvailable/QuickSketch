@@ -27,17 +27,31 @@ public interface SketchRepo extends JpaRepository<Sketch, Long>
     @Query(value = "INSERT INTO user_sketches (guessed, user_id, sketch_id) VALUES (:guessed, :userId, :sketchId) ON CONFLICT DO NOTHING", nativeQuery = true)
     void markAsCompleted(@Param("guessed") Boolean guessed, @Param("userId") Long userId, @Param("sketchId") Long sketchId);
 
-    @Query("SELECT s FROM Sketch s WHERE (:userId IS NULL OR s.author.id <> :userId) ORDER BY s.createdAt DESC")
+   @Query
+   (value = """
+        SELECT s.* FROM sketches s 
+        WHERE (:userId IS NULL OR s.author_id <> :userId)
+        ORDER BY 
+        CASE WHEN :userId IS NULL THEN 0 
+            WHEN EXISTS (SELECT 1 FROM user_sketches us WHERE us.user_id = :userId AND us.sketch_id = s.id) THEN 1 
+            ELSE 0 END ASC, 
+        s.created_at DESC
+    """, nativeQuery = true)
     Page<Sketch> findAllExcludingUser(@Param("userId") Long userId, Pageable pageable);
 
     @Query
     (value = """
-        SELECT * FROM sketches s 
+        SELECT s.* FROM sketches s 
         WHERE s.author_id IN
         (
             SELECT f.followed_id FROM follows f WHERE f.follower_id = :userId
         )
-        ORDER BY s.created_at DESC
+        ORDER BY 
+        EXISTS (
+            SELECT 1 FROM user_sketches us 
+            WHERE us.user_id = :userId AND us.sketch_id = s.id
+        ) ASC,
+        s.created_at DESC
     """, nativeQuery = true)
     Page<Sketch> findFollowedFeed(@Param("userId") Long userId, Pageable pageable);
 
