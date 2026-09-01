@@ -283,49 +283,62 @@
   }
 
   .inline-feedback-toast
-{
-  position: absolute;
-  bottom: 15px;
-  left: 95px;
-  right: 95px;
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background-color: color-mix(in srgb, var(--bg-secondary) 95%, var(--danger-color));
-  border: 1px solid var(--danger-color);
-  color: var(--danger-color);
-  padding: 8px 12px;
-  border-radius: 12px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  text-align: center;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(6px);
-  
-  animation: toastPop 3s ease forwards;
-
-  i
   {
-    font-size: 1.1rem;
-    transform: translateY(3px);
-  }
+    position: absolute;
+    bottom: 15px;
+    left: 95px;
+    right: 95px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: color-mix(in srgb, var(--bg-secondary) 95%, var(--danger-color));
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    
+    animation: toastPop 3s ease forwards;
 
-  &.warning
-  {
-    background-color: color-mix(in srgb, var(--bg-secondary) 95%, #f5a623);
-    border-color: #f5a623;
-    color: #f5a623;
-  }
+    i
+    {
+      font-size: 1.1rem;
+      transform: translateY(3px);
+    }
 
-  &.success
-  {
-    background-color: color-mix(in srgb, var(--bg-secondary) 95%, #4cd964);
-    border-color: #4cd964;
-    color: #4cd964;
+    &.warning
+    {
+      background-color: color-mix(in srgb, var(--bg-secondary) 95%, #f5a623);
+      border-color: #f5a623;
+      color: #f5a623;
+    }
+
+    &.success
+    {
+      background-color: color-mix(in srgb, var(--bg-secondary) 95%, #4cd964);
+      border-color: #4cd964;
+      color: #4cd964;
+    }
+
+    @media (max-width: 768px)
+    {
+      left: 15px;
+      right: 15px;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+
+      i
+      {
+        transform: translateY(1px);
+      }
+    }
   }
-}
 
   .post-footer
   {
@@ -396,6 +409,36 @@
         {
           animation: bump 0.3s ease;
         }
+      }
+    }
+  }
+
+  @media (max-width: 768px)
+  {
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+
+    .post-header .user-info .author-name
+    {
+      font-size: 1rem;
+    }
+
+    .post-body .guess-section .guess-actions .btn-black,
+    .post-body .guess-section .guess-actions .btn-giveup
+    {
+      height: 40px;
+      font-size: 0.9rem;
+    }
+
+    .post-footer .actions-group .action-btn
+    {
+      font-size: 0.9rem;
+      padding: 5px;
+      
+      i
+      {
+        font-size: 1.2rem;
       }
     }
   }

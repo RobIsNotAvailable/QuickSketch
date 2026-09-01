@@ -78,4 +78,39 @@
       }
     }
   }
+
+  @media (max-width: 768px)
+  {
+    .modal-content
+    {
+      padding: 25px 20px;
+      max-width: 85%;
+      border-radius: 20px;
+
+      h2
+      {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+      }
+
+      p
+      {
+        font-size: 1rem;
+        margin-bottom: 20px;
+      }
+
+      .modal-actions
+      {
+        flex-direction: column-reverse;
+        gap: 10px;
+
+        button
+        {
+          width: 100%;
+          padding: 10px;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
 }

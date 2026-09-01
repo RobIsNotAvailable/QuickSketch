@@ -15,7 +15,7 @@
     @else if (sketches().length === 0)
     {
       <div class="feed-status">
-        <p>No sketches found here yet...</p>
+        <p>No sketches found here yet</p>
       </div>
     }
     @else
@@ -25,6 +25,15 @@
         <app-post-card [sketch]="sketch" (openCommentsDrawer)="openComments($event)"></app-post-card>
       }
     }
+
+    <div #infiniteScrollTrigger class="scroll-trigger" style="height: 1px; width: 100%; margin-bottom: 20px;">
+      @if (loadingMore())
+      {
+        <div class="feed-status" style="padding: 20px 0;">
+          <i class="bx bx-loader-alt bx-spin"></i>
+        </div>
+      }
+    </div>
   </div>
 
   <app-comments-drawer

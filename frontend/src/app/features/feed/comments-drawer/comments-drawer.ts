@@ -33,6 +33,19 @@ export class CommentsDrawer implements OnChanges
   {
     const sketchIdChanged = changes['sketchId'] && !changes['sketchId'].isFirstChange();
     const opened = changes['isOpen'] && this.isOpen;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+    if (isMobile)
+    {
+      if (opened)
+      {
+        document.body.style.overflow = 'hidden';
+      }
+      else
+      {
+        document.body.style.overflow = '';
+      }
+    }
 
     if (opened || (this.isOpen && sketchIdChanged))
     {

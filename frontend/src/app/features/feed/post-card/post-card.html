@@ -46,6 +46,7 @@
               placeholder="Guess here"
               [(ngModel)]="guessText"
               (keyup.enter)="submitGuess()"
+              maxlength="50"
             />
           </div>
           <span class="guesses-left-badge">{{ sketch.remainingGuesses }} left</span>
@@ -88,7 +89,7 @@
             [class.success]="feedbackType() === 'success'">
           <i class="bx" 
             [class.bx-info-circle]="feedbackType() === 'error'" 
-            [class.bxs-hot]="feedbackType() === 'warning'"
+            [class.bx-bulb]="feedbackType() === 'warning'"
             [class.bx-check-circle]="feedbackType() === 'success'">
           </i>
           <span>{{ feedbackMessage() }}</span>

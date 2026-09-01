@@ -214,11 +214,16 @@ export class Sketcher implements OnInit, OnDestroy
     this.selectColor(color);
   }
 
-  startAction(event: MouseEvent): void
+  startAction(event: MouseEvent | TouchEvent): void
   {
     if (this.activeModal() !== null || this.timeLeft() === 0)
     {
       return;
+    }
+    
+    if ('touches' in event) 
+    {
+      event.preventDefault();
     }
 
     const { x, y } = this.getCoordinates(event);
@@ -233,11 +238,16 @@ export class Sketcher implements OnInit, OnDestroy
     this.canvasService.startDrawing(x, y);
   }
 
-  draw(event: MouseEvent): void
+  draw(event: MouseEvent | TouchEvent): void
   {
     if (this.activeModal() !== null || this.timeLeft() === 0)
     {
       return;
+    }
+    
+    if ('touches' in event) 
+    {
+      event.preventDefault();
     }
 
     const { x, y } = this.getCoordinates(event);
@@ -287,16 +297,30 @@ export class Sketcher implements OnInit, OnDestroy
     });
   }
 
-  private getCoordinates(event: MouseEvent): Point
+  private getCoordinates(event: MouseEvent | TouchEvent): Point
   {
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
+    let clientX: number;
+    let clientY: number;
+
+    if ('touches' in event)
+    {
+      clientX = event.touches[0].clientX;
+      clientY = event.touches[0].clientY;
+    }
+    else
+    {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    }
+
     return {
-      x: (event.clientX - rect.left) * scaleX,
-      y: (event.clientY - rect.top) * scaleY
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
     };
   }
 }

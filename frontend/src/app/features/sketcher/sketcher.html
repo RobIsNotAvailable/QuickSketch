@@ -73,6 +73,11 @@
               (mousemove)="draw($event)"
               (mouseup)="stopAction()"
               (mouseleave)="stopAction()"
+              (mouseenter)="$event.buttons === 1 && startAction($event)"
+              (touchstart)="startAction($event)"
+              (touchmove)="draw($event)"
+              (touchend)="stopAction()"
+              (touchcancel)="stopAction()"
             ></canvas>
 
             @if (showTimeUpAlert())

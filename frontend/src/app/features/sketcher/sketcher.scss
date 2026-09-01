@@ -21,6 +21,7 @@
     align-items: center;
     gap: 15px;
     text-align: center;
+    margin-top: 50px;
 
     i
     {
@@ -92,6 +93,13 @@
     gap: 20px;
     box-sizing: border-box;
 
+    @media (max-width: 1024px)
+    {
+      padding: 12px;
+      border-radius: 15px;
+      gap: 12px;
+    }
+
     .drawing-header
     {
       display: flex;
@@ -146,6 +154,25 @@
           }
         }
       }
+
+      @media (max-width: 1024px)
+      {
+        justify-content: space-between;
+        padding: 10px 15px;
+
+        .word-display
+        {
+          position: static;
+          transform: none;
+          font-size: 1.2rem;
+        }
+
+        .timer-display
+        {
+          font-size: 1.1rem;
+          padding: 6px 10px;
+        }
+      }
     }
 
     .workspace
@@ -156,6 +183,12 @@
       justify-content: center;
       gap: 30px;
 
+      @media (max-width: 1024px)
+      {
+        flex-direction: column;
+        gap: 15px;
+      }
+
       .left-column
       {
         flex: 1;
@@ -164,16 +197,27 @@
         justify-content: center;
         align-items: center;
 
+        @media (max-width: 1024px)
+        {
+          min-width: 100%;
+          width: 100%;
+        }
+
         .canvas-wrapper
         {
           position: relative;
           width: 100%;
-          max-width: 70vh;
+          max-width: 100%;
           aspect-ratio: 1 / 1;
           border-radius: 12px;
           overflow: hidden;
           border: 2px solid var(--border-color);
           box-shadow: inset 0 0 10px var(--shadow-color);
+
+          @media (max-width: 1024px)
+          {
+            max-width: 100%;
+          }
 
           canvas
           {
@@ -219,12 +263,23 @@
         flex-direction: column;
         gap: 20px;
 
+        @media (max-width: 1024px)
+        {
+          width: 100%;
+          gap: 12px;
+        }
+
         .controls-panel
         {
           display: flex;
           flex-direction: column;
           gap: 20px;
           flex: 1;
+
+          @media (max-width: 1024px)
+          {
+            gap: 12px;
+          }
 
           .color-palette
           {
@@ -233,6 +288,12 @@
             gap: 12px;
             justify-items: center;
             align-items: center;
+
+            @media (max-width: 1024px)
+            {
+              grid-template-columns: repeat(8, 1fr);
+              gap: 8px;
+            }
 
             .color-swatch
             {
@@ -245,6 +306,12 @@
               transition: transform 0.2s, border-color 0.2s;
               box-shadow: 0 2px 5px var(--shadow-color);
               
+              @media (max-width: 1024px)
+              {
+                width: 32px;
+                height: 32px;
+              }
+
               &.active
               {
                 transform: scale(1.15);
@@ -279,12 +346,23 @@
                 border-radius: 50%;
                 overflow: hidden;
 
+                @media (max-width: 1024px)
+                {
+                  width: 32px;
+                  height: 32px;
+                }
+
                 .palette-icon
                 {
                   color: #ffffff;
                   font-size: 1.4rem;
                   pointer-events: none;
                   text-shadow: 0 0 4px var(--shadow-color);
+
+                  @media (max-width: 1024px)
+                  {
+                    font-size: 1.1rem;
+                  }
                 }
               }
 
@@ -310,6 +388,12 @@
             border: 1px solid var(--border-color);
             gap: 12px;
 
+            @media (max-width: 1024px)
+            {
+              padding: 10px;
+              gap: 8px;
+            }
+
             .tools-group, .history-group, .sizes-group
             {
               display: flex;
@@ -317,6 +401,11 @@
               justify-content: center;
               gap: 12px;
               width: 100%;
+
+              @media (max-width: 1024px)
+              {
+                gap: 8px;
+              }
             }
 
             .divider
@@ -342,6 +431,13 @@
               cursor: pointer;
               font-size: 1.4rem;
               transition: all 0.2s;
+
+              @media (max-width: 1024px)
+              {
+                width: 36px;
+                height: 36px;
+                font-size: 1.2rem;
+              }
 
               &:hover:not(:disabled)
               {
@@ -398,6 +494,12 @@
             cursor: pointer;
             transition: filter 0.2s;
 
+            @media (max-width: 1024px)
+            {
+              padding: 10px;
+              font-size: 1rem;
+            }
+
             &:disabled
             {
               opacity: 0.7;
@@ -417,7 +519,6 @@
 
 @keyframes popInAndOut
 {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
   15%, 85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
 }
