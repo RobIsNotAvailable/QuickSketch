@@ -4,6 +4,7 @@ import { SketchService } from '../../core/services/sketch.service';
 import { Sketch } from '../../core/models/sketch.model';
 import { PostCard } from '../../shared/components/post-card/post-card';
 import { CommentsDrawer } from '../../shared/components/comments-drawer/comments-drawer';
+import { CommentsController } from '../../shared/components/base/comments-controller';
 
 @Component
 ({
@@ -13,15 +14,13 @@ import { CommentsDrawer } from '../../shared/components/comments-drawer/comments
   templateUrl: './post.html',
   styleUrl: './post.scss'
 })
-export class Post implements OnInit
+export class Post extends CommentsController implements OnInit
 {
   route = inject(ActivatedRoute);
   sketchService = inject(SketchService);
 
   sketch = signal<Sketch | null>(null);
   loading = signal<boolean>(true);
-  isCommentsDrawerOpen = signal<boolean>(false);
-  activeSketchId = signal<number>(0);
 
   ngOnInit(): void
   {
@@ -52,14 +51,4 @@ export class Post implements OnInit
     }
   }
 
-  openComments(sketchId: number): void
-  {
-    this.activeSketchId.set(sketchId);
-    this.isCommentsDrawerOpen.set(true);
-  }
-
-  closeComments(): void
-  {
-    this.isCommentsDrawerOpen.set(false);
-  }
 }

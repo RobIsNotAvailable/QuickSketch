@@ -5,6 +5,7 @@ import { SketchService } from '../../core/services/sketch.service';
 import { Sketch } from '../../core/models/sketch.model';
 import { PostCard } from '../../shared/components/post-card/post-card';
 import { CommentsDrawer } from '../../shared/components/comments-drawer/comments-drawer';
+import { CommentsController } from '../../shared/components/base/comments-controller';
 import { InfiniteScrollDirective } from '../../shared/directives/infinite-scroll.directive';
 
 @Component
@@ -15,7 +16,7 @@ import { InfiniteScrollDirective } from '../../shared/directives/infinite-scroll
   styleUrl: './feed.scss',
   templateUrl: './feed.html',
 })
-export class Feed implements OnInit
+export class Feed extends CommentsController implements OnInit
 {
   authService = inject(AuthService);
   sketchService = inject(SketchService);
@@ -27,9 +28,6 @@ export class Feed implements OnInit
   
   currentPage = 0;
   hasMore = true;
-
-  isCommentsDrawerOpen = signal<boolean>(false);
-  activeSketchId = signal<number>(0); 
 
   ngOnInit(): void
   {
@@ -105,23 +103,5 @@ export class Feed implements OnInit
         this.loadingMore.set(false);
       }
     });
-  }
-
-  openComments(sketchId: number): void
-  {
-    if (this.isCommentsDrawerOpen() && this.activeSketchId() === sketchId)
-    {
-      this.closeComments();
-    }
-    else
-    {
-      this.activeSketchId.set(sketchId);
-      this.isCommentsDrawerOpen.set(true);
-    }
-  }
-
-  closeComments(): void
-  {
-    this.isCommentsDrawerOpen.set(false);
   }
 }

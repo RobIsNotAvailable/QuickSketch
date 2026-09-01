@@ -1,3 +1,5 @@
+@use '../../shared/styles/mixins' as *;
+
 .post-detail-container
 {
   width: 100%;
@@ -9,12 +11,5 @@
 
 .status
 {
-  text-align: center;
-  padding: 60px;
-  
-  i
-  {
-    font-size: 2rem;
-    color: var(--accent-color);
-  }
+  @include status-loader(60px, 2rem);
 }

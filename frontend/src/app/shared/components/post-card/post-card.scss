@@ -1,3 +1,5 @@
+@use '../../../shared/styles/mixins' as *;
+
 @keyframes bump
 {
   0%, 100% { transform: scale(1); }
@@ -42,21 +44,7 @@
 
       .avatar
       {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--bg-primary);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 2px solid var(--border-color);
-        flex-shrink: 0;
-
-        i
-        {
-          font-size: 1.5rem;
-          color: var(--text-secondary);
-        }
+        @include avatar-circle(40px, 1.5rem, 2px);
       }
 
       .author-name
@@ -181,6 +169,9 @@
           border-radius: 10px;
           display: flex;
           align-items: center;
+          justify-content: center;
+          min-width: 75px;
+          box-sizing: border-box;
         }
       }
 
@@ -191,60 +182,21 @@
 
         .btn-black
         {
+          @include btn-primary(0 12px);
           flex: 1;
           height: 48px;
-          padding: 0 12px;
-          background: var(--accent-color);
-          color: #ffffff;
-          border: none;
-          border-radius: 10px;
-          font-weight: bold;
-          font-size: 1rem;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: filter 0.2s;
-
-          &:disabled
-          {
-            opacity: 0.5;
-            cursor: default;
-          }
-
-          &:hover:not(:disabled)
-          {
-            filter: brightness(0.85);
-          }
         }
 
         .btn-giveup
         {
+          @include btn-ghost(0);
           width: 48px;
           height: 48px;
-          padding: 0;
-          background: transparent;
-          color: var(--text-secondary);
-          border: 2px solid var(--border-color);
-          border-radius: 10px;
-          font-weight: bold;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
           flex-shrink: 0;
-          transition: all 0.2s;
 
           i
           {
             font-size: 1.2rem;
-          }
-
-          &:hover
-          {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            border-color: var(--text-secondary);
           }
         }
       }

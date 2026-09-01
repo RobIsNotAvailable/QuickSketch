@@ -1,0 +1,171 @@
+@mixin surface-card($padding: 20px, $radius: 20px, $shadow: true)
+{
+  background: var(--bg-secondary);
+  border-radius: $radius;
+  border: 1px solid var(--border-color);
+  padding: $padding;
+  box-sizing: border-box;
+
+  @if $shadow
+  {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@mixin btn-primary($padding: 12px)
+{
+  background: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  padding: $padding;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+
+  &:disabled
+  {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &:hover:not(:disabled)
+  {
+    filter: brightness(0.85);
+  }
+}
+
+@mixin btn-ghost($padding: 12px)
+{
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  padding: $padding;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled)
+  {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+  }
+
+  &:disabled
+  {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+@mixin avatar-circle($size: 40px, $icon-size: 1.5rem, $border-width: 2px)
+{
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: $border-width solid var(--border-color);
+  flex-shrink: 0;
+
+  i
+  {
+    font-size: $icon-size;
+    color: var(--text-secondary);
+  }
+}
+
+@mixin status-loader($padding: 60px, $icon-size: 2.5rem)
+{
+  text-align: center;
+  padding: $padding;
+  
+  i
+  {
+    font-size: $icon-size;
+    color: var(--accent-color);
+  }
+}
+
+@mixin empty-state()
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border: 2px dashed var(--border-color);
+  border-radius: 16px;
+  padding: 40px 20px;
+  font-size: 1rem;
+
+  i
+  {
+    font-size: 2.5rem;
+    color: var(--text-secondary);
+    opacity: 0.5;
+  }
+}
+
+@mixin pagination-controls()
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 0 30px 0;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px)
+  {
+    gap: 10px;
+    padding: 10px 0 80px 0;
+  }
+
+  .page-btn
+  {
+    @include btn-ghost(8px 14px);
+    font-size: 0.9rem;
+    gap: 4px;
+
+    @media (max-width: 768px)
+    {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+
+    &:hover:not(:disabled)
+    {
+      border-color: var(--accent-color);
+    }
+  }
+
+  .page-info
+  {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    white-space: nowrap;
+
+    @media (max-width: 768px)
+    {
+      font-size: 0.8rem;
+    }
+  }
+}

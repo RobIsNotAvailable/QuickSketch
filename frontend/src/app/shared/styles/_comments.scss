@@ -1,3 +1,5 @@
+@use'../../shared/styles/mixins' as *;
+
 @mixin comment-card-styles()
 {
   display: flex;
@@ -5,31 +7,11 @@
   
   .comment-avatar
   {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--bg-primary);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid var(--border-color);
-    flex-shrink: 0;
-
-    i
-    {
-      color: var(--text-secondary);
-      font-size: 1.2rem;
-    }
+    @include avatar-circle(36px, 1.2rem, 1px);
 
     &.small
     {
-      width: 28px;
-      height: 28px;
-
-      i
-      {
-        font-size: 1rem;
-      }
+      @include avatar-circle(28px, 1rem, 1px);
     }
   }
 

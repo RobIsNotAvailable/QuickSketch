@@ -1,3 +1,5 @@
+@use '../../shared/styles/mixins' as *;
+
 .modal-overlay
 {
   position: fixed;
@@ -14,11 +16,7 @@
 
   .modal-content
   {
-    background: var(--bg-secondary);
-    padding: 40px;
-    border-radius: 25px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    @include surface-card(40px, 25px, true);
     text-align: center;
     max-width: 400px;
     width: 90%;
@@ -45,35 +43,20 @@
 
       button
       {
-        padding: 12px 25px;
         border-radius: 12px;
         font-size: 1.1rem;
-        font-weight: bold;
-        cursor: pointer;
-        border: none;
         transition: all 0.2s;
 
         &.btn-cancel
         {
-          background: transparent;
-          color: var(--text-primary);
-          border: 2px solid var(--border-color);
-
-          &:hover
-          {
-            background: var(--bg-hover);
-          }
+          @include btn-ghost(12px 25px);
+          border-radius: 12px;
         }
 
         &.btn-confirm
         {
-          background: var(--accent-color);
-          color: #ffffff;
-
-          &:hover
-          {
-            filter: brightness(0.85);
-          }
+          @include btn-primary(12px 25px);
+          border-radius: 12px;
         }
       }
     }

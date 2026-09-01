@@ -1,3 +1,4 @@
+@use '../../shared/styles/mixins' as *;
 @use '../../shared/styles/comments' as *;
 
 .profile-container
@@ -13,33 +14,21 @@
   @media (max-width: 768px)
   {
     width: 100%;
-    max-width: 650px;
     padding: 0 10px;
     gap: 15px;
   }
 
   .profile-status
   {
-    text-align: center;
-    padding: 60px;
-    
-    i
-    {
-      font-size: 2.5rem;
-      color: var(--accent-color);
-    }
+    @include status-loader(60px, 2.5rem);
   }
 
   .profile-header
   {
+    @include surface-card(30px, 20px, false);
     display: flex;
     align-items: center;
     gap: 25px;
-    background: var(--bg-secondary);
-    padding: 30px;
-    border-radius: 20px;
-    border: 1px solid var(--border-color);
-    box-sizing: border-box;
 
     @media (max-width: 768px)
     {
@@ -51,21 +40,7 @@
 
     .profile-avatar
     {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: var(--bg-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--border-color);
-      flex-shrink: 0;
-
-      i
-      {
-        font-size: 2.5rem;
-        color: var(--text-secondary);
-      }
+      @include avatar-circle(80px, 2.5rem, 2px);
     }
 
     .profile-info
@@ -118,6 +93,12 @@
           font-size: 0.85rem;
         }
 
+        span
+        {
+          display: flex;
+          flex-direction: column;
+        }
+
         strong
         {
           color: var(--text-primary);
@@ -126,19 +107,10 @@
 
       .btn-follow
       {
-        background: var(--accent-color);
-        color: #ffffff;
-        border: 2px solid var(--accent-color);
-        padding: 6px 16px;
+        @include btn-primary(6px 16px);
         min-width: 100px;
-        border-radius: 10px;
-        font-weight: bold;
         font-size: 0.9rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        border: 2px solid var(--accent-color);
 
         &.following
         {
@@ -154,14 +126,6 @@
               border-color: var(--danger-color);
               color: var(--danger-color);
             }
-          }
-        }
-
-        @media (hover: hover) and (pointer: fine)
-        {
-          &:hover:not(.following)
-          {
-            filter: brightness(0.9);
           }
         }
       }
@@ -228,26 +192,8 @@
 
     .empty-state
     {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      text-align: center;
-      color: var(--text-secondary);
-      background: var(--bg-secondary);
-      border: 2px dashed var(--border-color);
-      border-radius: 16px;
-      padding: 40px 20px;
-      font-size: 1rem;
+      @include empty-state();
       margin-top: 10px;
-
-      i
-      {
-        font-size: 2.5rem;
-        color: var(--text-secondary);
-        opacity: 0.5;
-      }
     }
 
     .sketches-grid
@@ -297,13 +243,10 @@
 
     .comment-card, .user-card
     {
-      background: var(--bg-secondary);
-      padding: 15px 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
+      @include surface-card(15px 20px, 12px, false);
       cursor: pointer;
       transition: border-color 0.2s;
-      box-sizing: border-box;
+      width: 100%;
 
       &:hover
       {
@@ -327,21 +270,7 @@
 
     .comment-card
     {
-      background: var(--bg-secondary);
-      padding: 15px 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      cursor: pointer;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
-      width: 100%;
-
       @include comment-card-styles();
-
-      &:hover
-      {
-        border-color: var(--accent-color);
-      }
     }
   }
 }

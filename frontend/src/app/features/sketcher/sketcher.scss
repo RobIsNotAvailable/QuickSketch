@@ -1,3 +1,5 @@
+@use '../../shared/styles/mixins' as *;
+
 .sketcher-container
 {
   --shadow-color: rgba(0, 0, 0, 0.4);
@@ -11,11 +13,7 @@
 
   .state-card
   {
-    background: var(--bg-secondary);
-    padding: 40px;
-    border-radius: 25px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 40px var(--shadow-color);
+    @include surface-card(40px, 25px, true);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -29,15 +27,18 @@
       color: var(--accent-color);
     }
 
-    h2
+    h2, p
     {
       margin: 0;
+    }
+
+    h2
+    {
       font-size: 1.6rem;
     }
 
     p
     {
-      margin: 0;
       color: var(--text-secondary);
     }
 
@@ -81,17 +82,12 @@
 
   .sketcher-card
   {
-    background: var(--bg-secondary);
-    padding: 25px;
-    border-radius: 25px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 40px var(--shadow-color);
+    @include surface-card(25px, 25px, true);
     width: 100%;
     max-width: 950px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    box-sizing: border-box;
 
     @media (max-width: 1024px)
     {
@@ -148,6 +144,7 @@
         {
           color: var(--danger-color);
           border-color: var(--danger-color);
+          
           i
           {
             color: var(--danger-color);
@@ -178,7 +175,6 @@
     .workspace
     {
       display: flex;
-      flex-direction: row;
       flex-wrap: wrap;
       justify-content: center;
       gap: 30px;
@@ -199,7 +195,6 @@
 
         @media (max-width: 1024px)
         {
-          min-width: 100%;
           width: 100%;
         }
 
@@ -207,17 +202,11 @@
         {
           position: relative;
           width: 100%;
-          max-width: 100%;
           aspect-ratio: 1 / 1;
           border-radius: 12px;
           overflow: hidden;
           border: 2px solid var(--border-color);
           box-shadow: inset 0 0 10px var(--shadow-color);
-
-          @media (max-width: 1024px)
-          {
-            max-width: 100%;
-          }
 
           canvas
           {
@@ -411,7 +400,6 @@
             .divider
             {
               width: 80%;
-              min-height: 1px;
               height: 1px;
               flex-shrink: 0;
               background: var(--border-color);
@@ -447,13 +435,10 @@
                   background: var(--bg-hover);
                 }
 
-                &.danger-btn
+                &.danger-btn:hover:not(:disabled)
                 {
-                  &:hover:not(:disabled)
-                  {
-                    color: var(--danger-color);
-                    background: color-mix(in srgb, var(--danger-color) 15%, transparent);
-                  }
+                  color: var(--danger-color);
+                  background: color-mix(in srgb, var(--danger-color) 15%, transparent);
                 }
               }
 
@@ -486,29 +471,16 @@
 
           .btn-publish
           {
+            @include btn-primary(12px);
             width: 100%;
-            background: var(--accent-color);
-            color: #ffffff;
-            border: none;
-            padding: 12px;
             border-radius: 12px;
             font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: filter 0.2s;
 
             @media (max-width: 1024px)
             {
               padding: 10px;
               font-size: 1rem;
             }
-
-            &:disabled
-            {
-              opacity: 0.7;
-              pointer-events: none !important;
-            }
-
           }
         }
       }

@@ -1,3 +1,5 @@
+@use '../../shared/styles/mixins' as *;
+
 .leaderboard-container
 {
   width: 650px;
@@ -80,14 +82,12 @@
 
   .current-user-card
   {
+    @include surface-card(10px 24px, 16px, false);
     background: color-mix(in srgb, var(--accent-color) 15%, var(--bg-secondary));
     border: 2px solid var(--accent-color);
-    border-radius: 16px;
-    padding: 10px 24px;
     display: flex;
     align-items: center;
     gap: 20px;
-    box-sizing: border-box;
     width: 100%;
 
     @media (max-width: 768px)
@@ -154,14 +154,7 @@
 
   .status
   {
-    text-align: center;
-    padding: 40px;
-
-    i
-    {
-      font-size: 2.2rem;
-      color: var(--accent-color);
-    }
+    @include status-loader(40px, 2.2rem);
   }
 
   .entries-list
@@ -178,15 +171,11 @@
 
     .entry-card
     {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 10px 24px;
+      @include surface-card(10px 24px, 14px, false);
       display: flex;
       align-items: center;
       gap: 20px;
       cursor: pointer;
-      box-sizing: border-box;
       transition: border-color 0.2s;
       width: 100%;
 
@@ -260,65 +249,6 @@
 
   .pagination-controls
   {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    padding: 15px 0 30px 0;
-    width: 100%;
-    box-sizing: border-box;
-
-    @media (max-width: 768px)
-    {
-      gap: 10px;
-      padding: 10px 0 80px 0;
-    }
-
-    .page-btn
-    {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: border-color 0.2s, background-color 0.2s;
-
-      @media (max-width: 768px)
-      {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-      }
-
-      &:hover:not(:disabled)
-      {
-        border-color: var(--accent-color);
-        background: var(--bg-hover);
-      }
-
-      &:disabled
-      {
-        opacity: 0.4;
-        cursor: default;
-      }
-    }
-
-    .page-info
-    {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      font-weight: 600;
-      white-space: nowrap;
-
-      @media (max-width: 768px)
-      {
-        font-size: 0.80rem;
-      }
-    }
+    @include pagination-controls();
   }
 }
