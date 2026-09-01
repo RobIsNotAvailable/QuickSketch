@@ -17,7 +17,7 @@
       <div class="avatar">
         <i class="bx bx-user"></i>
       </div>
-      <a [routerLink]="['/profile', sketch.author.username]" class="author-name">
+      <a [routerLink]="['/profile', sketch.author.id + '-' + sketch.author.username]" class="author-name">
         {{ sketch.author.username }}
       </a>
     </div>

@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.webtech.quicksketch.dto.response.LeaderboardResponse;
+import com.webtech.quicksketch.dto.response.UserProfileResponse;
 import com.webtech.quicksketch.dto.response.UserResponse;
-import com.webtech.quicksketch.dto.response.UserStatsResponse;
 import com.webtech.quicksketch.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,10 +31,10 @@ public class UserController
         return ResponseEntity.ok(isFollowing);
     }
 
-    @GetMapping("{userId}/stats")
-    public ResponseEntity<UserStatsResponse> getUserStats(@PathVariable Long userId)
+    @GetMapping("{userId}")
+    public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable Long userId)
     {
-        UserStatsResponse stats = userService.getUserStats(userId);
+        UserProfileResponse stats = userService.getUserProfile(userId);
         return ResponseEntity.ok(stats);
     }
 

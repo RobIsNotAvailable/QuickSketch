@@ -3,8 +3,8 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { SketchService } from '../../core/services/sketch.service';
 import { Sketch } from '../../core/models/sketch.model';
-import { PostCard } from './post-card/post-card';
-import { CommentsDrawer } from './comments-drawer/comments-drawer';
+import { PostCard } from '../../shared/components/post-card/post-card';
+import { CommentsDrawer } from '../../shared/components/comments-drawer/comments-drawer';
 
 @Component
 ({

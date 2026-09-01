@@ -13,6 +13,7 @@ export class AuthService
   private readonly apiUrl = `${environment.apiUrl}/auth`;
 
   currentUser = signal<string | null>(localStorage.getItem('username'));
+  currentUserId = signal<number | null>(localStorage.getItem('userId') ? Number(localStorage.getItem('userId')) : null);
   isLoggingOut = signal<boolean>(false);
 
   login(credentials: LoginRequest): Observable<AuthResponse>
@@ -57,11 +58,13 @@ export class AuthService
         next: () => {
           localStorage.clear();
           this.currentUser.set(null);
+          this.currentUserId.set(null);
           this.isLoggingOut.set(false);
         },
         error: () => {
           localStorage.clear();
           this.currentUser.set(null);
+          this.currentUserId.set(null);
           this.isLoggingOut.set(false);
         }
       });
@@ -103,6 +106,7 @@ export class AuthService
       if (userId)
       {
         localStorage.setItem('userId', userId.toString());
+        this.currentUserId.set(Number(userId));
       }
     }
   }

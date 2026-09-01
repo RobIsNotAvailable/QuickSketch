@@ -33,9 +33,8 @@ public class SecurityConfig
                 .requestMatchers("/api/auth/logout").authenticated()
                 .requestMatchers("/api/auth/**").permitAll()
 
-                .requestMatchers("/api/users/leaderboard").permitAll()
-                .requestMatchers("/api/users/{userId}/stats").permitAll()
-                .requestMatchers("/api/users/**").authenticated()
+                .requestMatchers("/api/users/follow").authenticated()
+                .requestMatchers("/api/users/**").permitAll()
 
                 .requestMatchers("/api/sketches/init").authenticated()
                 .requestMatchers("/api/sketches/create").authenticated()

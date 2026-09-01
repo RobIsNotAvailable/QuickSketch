@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Sketch } from '../../../core/models/sketch.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { SketchService } from '../../../core/services/sketch.service';
-import { ConfirmModal } from '../../../shared/components/confirm-modal/confirm-modal';
+import { ConfirmModal } from '../confirm-modal/confirm-modal';
 
 @Component
 ({

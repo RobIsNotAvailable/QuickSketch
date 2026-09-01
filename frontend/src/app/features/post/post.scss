@@ -1,0 +1,20 @@
+.post-detail-container
+{
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+.status
+{
+  text-align: center;
+  padding: 60px;
+  
+  i
+  {
+    font-size: 2rem;
+    color: var(--accent-color);
+  }
+}

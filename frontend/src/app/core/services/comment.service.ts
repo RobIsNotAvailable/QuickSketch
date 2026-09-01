@@ -24,4 +24,9 @@ export class CommentService
   {
     return this.http.get<any>(`${this.apiUrl}/replies/${commentId}?page=${page}`);
   }
+  
+  getUserComments(userId: number, page: number = 0): Observable<any>
+  {
+    return this.http.get<any>(`${environment.apiUrl}/comments/user/${userId}?page=${page}`);
+  }
 }

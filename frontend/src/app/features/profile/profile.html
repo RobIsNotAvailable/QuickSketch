@@ -1,1 +1,148 @@
-<p>profile works!</p>
+<div class="profile-container">
+  @if (loading())
+  {
+    <div class="profile-status">
+      <i class="bx bx-loader-alt bx-spin"></i>
+    </div>
+  }
+  @else
+  {
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <i class="bx bx-user"></i>
+      </div>
+      <div class="profile-info">
+        <div class="profile-title-row">
+          <h2>{{ profile()?.username }}</h2>
+          
+          @if (authService.isLoggedIn() && !isOwnProfile())
+          {
+            <button 
+              class="btn-follow" 
+              [class.following]="isFollowed()"
+              (click)="toggleFollow()">
+              {{ isFollowed() ? 'Unfollow' : 'Follow' }}
+            </button>
+          }
+        </div>
+        
+        @if (profile())
+        {
+          <div class="stats-row">
+            <span><strong>Sketches:</strong> {{ profile().totalSketchesCreated }}</span>
+            <span><strong>Artist Guess Rate:</strong> {{ profile().artistWinRate.toFixed(0) }}%</span>
+            <span><strong>Guessed:</strong> {{ profile().wordsGuessed }}</span>
+            <span><strong>Failed:</strong> {{ profile().wordsFailed }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="profile-tabs">
+      <button [class.active]="activeTab() === 'sketches'" (click)="activeTab.set('sketches')">
+        Sketches ({{ sketches().length }})
+      </button>
+      <button [class.active]="activeTab() === 'comments'" (click)="activeTab.set('comments')">
+        Comments ({{ comments().length }})
+      </button>
+      <button [class.active]="activeTab() === 'followers'" (click)="activeTab.set('followers')">
+        Followers ({{ followers().length }})
+      </button>
+      <button [class.active]="activeTab() === 'followed'" (click)="activeTab.set('followed')">
+        Following ({{ followed().length }})
+      </button>
+    </div>
+
+    <div class="profile-content">
+      @if (activeTab() === 'sketches')
+      {
+        @if (sketches().length === 0)
+        {
+          <div class="empty-state">
+            <i class="bx bx-image"></i>
+            <p>No sketches published yet.</p>
+          </div>
+        }
+        @else
+        {
+          <div class="sketches-grid">
+            @for (sketch of sketches(); track sketch.id)
+            {
+              <a class="sketch-thumb" [routerLink]="['/post', sketch.id]">
+                <img [src]="sketch.imageData" alt="Sketch" />
+              </a>
+            }
+          </div>
+        }
+      }
+      @else if (activeTab() === 'comments')
+      {
+        @if (comments().length === 0)
+        {
+          <div class="empty-state">
+            <i class="bx bx-message-rounded-detail"></i>
+            <p>No comments written yet.</p>
+          </div>
+        }
+        @else
+        {
+          <div class="comments-list">
+            @for (comment of comments(); track comment.id)
+            {
+              <div class="comment-card" [routerLink]="['/post', comment.sketchId]">
+                <div class="comment-meta">
+                  <span class="time">{{ timeAgo(comment.createdAt) }}</span>
+                </div>
+                <p class="comment-text">{{ comment.text }}</p>
+              </div>
+            }
+          </div>
+        }
+      }
+      @else if (activeTab() === 'followers')
+      {
+        @if (followers().length === 0)
+        {
+          <div class="empty-state">
+            <i class="bx bx-user-x"></i>
+            <p>No followers yet.</p>
+          </div>
+        }
+        @else
+        {
+          <div class="users-list">
+            @for (user of followers(); track user.id)
+            {
+              <div class="user-card" [routerLink]="['/profile', user.id + '-' + user.username]">
+                <i class="bx bx-user"></i>
+                <span>{{ user.username }}</span>
+              </div>
+            }
+          </div>
+        }
+      }
+      @else if (activeTab() === 'followed')
+      {
+        @if (followed().length === 0)
+        {
+          <div class="empty-state">
+            <i class="bx bx-user-plus"></i>
+            <p>Not following anyone yet.</p>
+          </div>
+        }
+        @else
+        {
+          <div class="users-list">
+            @for (user of followed(); track user.id)
+            {
+              <div class="user-card" [routerLink]="['/profile', user.id + '-' + user.username]">
+                <i class="bx bx-user"></i>
+                <span>{{ user.username }}</span>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

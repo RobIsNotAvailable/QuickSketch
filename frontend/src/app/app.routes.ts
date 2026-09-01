@@ -37,8 +37,12 @@ export const routes: Routes = [
     canDeactivate: [sketchDeactivateGuard]
   },
   {
-    path: 'profile/:username',
+    path: 'profile/:slug',
     loadComponent: () => import('./features/profile/profile').then(m => m.Profile)
+  },
+  {
+    path: 'post/:id',
+    loadComponent: () => import('./features/post/post').then(m => m.Post)
   },
   {
     path: '**',

@@ -1,7 +1,8 @@
 package com.webtech.quicksketch.dto.response;
 
-public record UserStatsResponse(
+public record UserProfileResponse(
     String username,
+    Boolean isFollowed,
 
     int totalSketchesCreated,
     double artistWinRate,

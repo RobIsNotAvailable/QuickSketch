@@ -439,18 +439,21 @@
                 font-size: 1.2rem;
               }
 
-              &:hover:not(:disabled)
-              {
-                color: var(--text-primary);
-                background: var(--bg-hover);
-              }
-
-              &.danger-btn
+              @media (hover: hover) and (pointer: fine)
               {
                 &:hover:not(:disabled)
                 {
-                  color: var(--danger-color);
-                  background: color-mix(in srgb, var(--danger-color) 15%, transparent);
+                  color: var(--text-primary);
+                  background: var(--bg-hover);
+                }
+
+                &.danger-btn
+                {
+                  &:hover:not(:disabled)
+                  {
+                    color: var(--danger-color);
+                    background: color-mix(in srgb, var(--danger-color) 15%, transparent);
+                  }
                 }
               }
 
@@ -506,10 +509,6 @@
               pointer-events: none !important;
             }
 
-            &:hover:not(:disabled)
-            {
-              filter: brightness(0.85);
-            }
           }
         }
       }

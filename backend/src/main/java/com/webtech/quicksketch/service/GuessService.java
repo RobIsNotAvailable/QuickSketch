@@ -40,7 +40,7 @@ public class GuessService
 
         if(sketchRepo.hasUserCompletedSketch(userId, sketch.getId())) 
         {
-            throw new IllegalArgumentException("User has completed the sketch and cannot guess further");
+            throw new IllegalStateException("User has completed the sketch and cannot guess further");
         }
 
         Guess guess = new Guess(request.text(), user, sketch);
@@ -75,7 +75,7 @@ public class GuessService
 
         if(sketchRepo.hasUserCompletedSketch(userId, sketchId))
         {
-            throw new IllegalArgumentException("User has completed the sketch already and cannot give up");
+            throw new IllegalStateException("User has completed the sketch already and cannot give up");
         }
 
         sketchRepo.markAsCompleted(false, userId, sketchId);

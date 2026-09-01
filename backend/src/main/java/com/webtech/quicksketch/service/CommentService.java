@@ -41,7 +41,7 @@ public class CommentService
 
         if(!sketchRepo.hasUserCompletedSketch(userId, sketch.getId())) 
         {
-            throw new IllegalArgumentException("User has not completed the sketch and cannot comment");
+            throw new IllegalStateException("User has not completed the sketch and cannot comment");
         }
 
         Comment replyTo = 

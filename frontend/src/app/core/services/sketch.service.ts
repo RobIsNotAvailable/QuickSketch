@@ -50,6 +50,16 @@ export class SketchService
     return this.http.get<any>(`${this.apiUrl}/feed/followed?page=${page}`);
   }
 
+  getUserSketches(authorId: number, page: number = 0): Observable<any>
+  {
+    return this.http.get<any>(`${this.apiUrl}/user/${authorId}?page=${page}`);
+  }
+
+  getSketchById(sketchId: number): Observable<any>
+  {
+    return this.http.get<any>(`${this.apiUrl}/get/${sketchId}`);
+  }
+
   guessWord(text: string, sketchId: number): Observable<any>
   {
     return this.http.post<any>(`${this.guessUrl}/guess`, { text, sketchId });

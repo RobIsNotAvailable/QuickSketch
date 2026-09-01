@@ -12,8 +12,8 @@ import com.webtech.quicksketch.dto.request.RefreshTokenRequest;
 import com.webtech.quicksketch.dto.request.RegisterRequest;
 import com.webtech.quicksketch.dto.response.AuthResponse;
 import com.webtech.quicksketch.dto.response.LeaderboardResponse;
+import com.webtech.quicksketch.dto.response.UserProfileResponse;
 import com.webtech.quicksketch.dto.response.UserResponse;
-import com.webtech.quicksketch.dto.response.UserStatsResponse;
 import com.webtech.quicksketch.model.RefreshToken;
 import com.webtech.quicksketch.model.User;
 import com.webtech.quicksketch.model.enums.GuessAccuracy;
@@ -63,12 +63,12 @@ public class UserService
     {
         if(repo.existsByEmail(request.email()))
         {
-            throw new IllegalArgumentException("Email already in use");
+            throw new IllegalStateException("Email already in use");
         }
 
         if(repo.existsByUsername(request.username()))
         {
-            throw new IllegalArgumentException("Username already taken");
+            throw new IllegalStateException("Username already taken");
         }
 
         User user = new User(request.username(), request.email(), encoder.encode(request.password()));
@@ -118,7 +118,7 @@ public class UserService
 
         if(currentUserId.equals(targetUserId))
         {
-            throw new IllegalArgumentException("You cannot follow yourself");
+            throw new IllegalStateException("You cannot follow yourself");
         }
 
         if(!repo.existsById(targetUserId))
@@ -139,11 +139,13 @@ public class UserService
     }
 
     @Transactional(readOnly = true)
-    public UserStatsResponse getUserStats(Long userId)
+    public UserProfileResponse getUserProfile(Long userId)
     {
         User user = repo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException(StringConstants.NOT_FOUND("User")));
 
+        Long currentUserId = SecurityUtil.getCurrentUserId().orElse(null);
+        boolean isFollowed = currentUserId != null && repo.isFollowing(currentUserId, userId);
         int totalSketches = sketchRepo.countByAuthorId(userId);
         double artistWinRate = repo.calculateArtistWinRate(userId);
 
@@ -151,8 +153,9 @@ public class UserService
         int wordsGuessed = guessRepo.countByUserIdAndAccuracy(userId, GuessAccuracy.CORRECT);
         int wordsFailed = guessRepo.countFailedSketchesByUserId(userId);
 
-        return new UserStatsResponse(
+        return new UserProfileResponse(
             user.getUsername(),
+            isFollowed,
             totalSketches,
             Math.round(artistWinRate * 100.0) / 100.0,
             totalAttempts,

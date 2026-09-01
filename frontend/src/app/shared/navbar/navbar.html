@@ -29,9 +29,9 @@
         </a>
       </li>
       <li>
-        <a [routerLink]="['/profile', authService.currentUser()]" routerLinkActive="active">
+        <a [routerLink]="['/profile', authService.currentUserId() + '-' + authService.currentUser()]" routerLinkActive="active">
           <i class="bx bx-user icon"></i>
-          <span class="label">Profile</span>
+          <span class="label">{{ authService.currentUser() }}</span>
         </a>
       </li>
       <li class="logout-item">
