@@ -2,12 +2,13 @@ import { Component, Input, Output, EventEmitter, inject, signal, OnChanges, Simp
 import { FormsModule } from '@angular/forms';
 import { CommentService } from '../../../core/services/comment.service';
 import { CommentResponse } from '../../../core/models/comment.model';
+import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 
 @Component
 ({
   selector: 'app-comments-drawer',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TimeAgoPipe],
   templateUrl: './comments-drawer.html',
   styleUrl: './comments-drawer.scss'
 })
@@ -162,29 +163,5 @@ export class CommentsDrawer implements OnChanges
   close(): void
   {
     this.closeDrawer.emit();
-  }
-
-  timeAgo(dateString: string): string
-  {
-    const date = new Date(dateString).getTime();
-    const now = new Date().getTime();
-    const seconds = Math.floor((now - date) / 1000);
-
-    if (seconds < 60)
-    {
-        return 'Just now';
-    }
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60)
-    {
-        return `${minutes}m`;
-    }
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24)
-    {
-        return `${hours}h`;
-    }
-    const days = Math.floor(hours / 24);
-    return `${days}d`;
   }
 }

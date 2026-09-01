@@ -26,7 +26,7 @@
       }
     }
 
-    <div #infiniteScrollTrigger class="scroll-trigger" style="height: 1px; width: 100%; margin-bottom: 20px;">
+    <div appInfiniteScroll (scrolled)="loadMore()" class="scroll-trigger" style="height: 1px; width: 100%; margin-bottom: 20px;">
       @if (loadingMore())
       {
         <div class="feed-status" style="padding: 20px 0;">

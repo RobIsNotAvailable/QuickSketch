@@ -26,7 +26,7 @@
             <div class="comment-main">
               <div class="comment-header">
                 <span class="author">{{ comment.author.username }}</span>
-                <span class="time">{{ timeAgo(comment.createdAt) }}</span>
+                <span class="time">{{ comment.createdAt | timeAgo }}</span>
               </div>
               <div class="text">{{ comment.text }}</div>
               
@@ -54,7 +54,7 @@
                       <div class="comment-main">
                         <div class="comment-header">
                           <span class="author">{{ reply.author.username }}</span>
-                          <span class="time">{{ timeAgo(reply.createdAt) }}</span>
+                          <span class="time">{{ reply.createdAt | timeAgo }}</span>
                         </div>
                         <div class="text">{{ reply.text }}</div>
                       </div>

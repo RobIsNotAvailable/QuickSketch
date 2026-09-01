@@ -1,20 +1,21 @@
-import { Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { SketchService } from '../../core/services/sketch.service';
 import { Sketch } from '../../core/models/sketch.model';
 import { PostCard } from '../../shared/components/post-card/post-card';
 import { CommentsDrawer } from '../../shared/components/comments-drawer/comments-drawer';
+import { InfiniteScrollDirective } from '../../shared/directives/infinite-scroll.directive';
 
 @Component
 ({
   selector: 'app-feed',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, PostCard, CommentsDrawer],
+  imports: [RouterLink, RouterLinkActive, PostCard, CommentsDrawer, InfiniteScrollDirective],
   styleUrl: './feed.scss',
   templateUrl: './feed.html',
 })
-export class Feed implements OnInit, AfterViewInit, OnDestroy
+export class Feed implements OnInit
 {
   authService = inject(AuthService);
   sketchService = inject(SketchService);
@@ -26,9 +27,6 @@ export class Feed implements OnInit, AfterViewInit, OnDestroy
   
   currentPage = 0;
   hasMore = true;
-  
-  @ViewChild('infiniteScrollTrigger') scrollTrigger!: ElementRef;
-  private observer?: IntersectionObserver;
 
   isCommentsDrawerOpen = signal<boolean>(false);
   activeSketchId = signal<number>(0); 
@@ -36,19 +34,6 @@ export class Feed implements OnInit, AfterViewInit, OnDestroy
   ngOnInit(): void
   {
     this.loadFeed();
-  }
-
-  ngAfterViewInit(): void
-  {
-    this.setupIntersectionObserver();
-  }
-
-  ngOnDestroy(): void
-  {
-    if (this.observer)
-    {
-      this.observer.disconnect();
-    }
   }
 
   loadFeed(): void
@@ -85,7 +70,7 @@ export class Feed implements OnInit, AfterViewInit, OnDestroy
 
   loadMore(): void
   {
-    if (this.loadingMore() || !this.hasMore)
+    if (this.loading() || this.loadingMore() || !this.hasMore)
     {
       return;
     }
@@ -103,7 +88,7 @@ export class Feed implements OnInit, AfterViewInit, OnDestroy
       next: (response: any) =>
       {
         const data = response.content ? response.content : response;
-        if (data.length > 0)
+        if (data.length >0)
         {
           this.sketches.update(current => [...current, ...data]);
         }
@@ -120,32 +105,6 @@ export class Feed implements OnInit, AfterViewInit, OnDestroy
         this.loadingMore.set(false);
       }
     });
-  }
-
-  private setupIntersectionObserver(): void
-  {
-    const options = 
-    {
-      root: null,
-      rootMargin: '200px',
-      threshold: 0.1
-    };
-
-    this.observer = new IntersectionObserver((entries) => 
-    {
-      entries.forEach(entry => 
-      {
-        if (entry.isIntersecting && !this.loading() && !this.loadingMore() && this.hasMore)
-        {
-          this.loadMore();
-        }
-      });
-    }, options);
-
-    if (this.scrollTrigger)
-    {
-      this.observer.observe(this.scrollTrigger.nativeElement);
-    }
   }
 
   openComments(sketchId: number): void

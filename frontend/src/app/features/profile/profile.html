@@ -96,7 +96,7 @@
                 <div class="comment-main">
                   <div class="comment-header">
                     <span class="author">{{ profile()?.username }}</span>
-                    <span class="time">{{ timeAgo(comment.createdAt) }}</span>
+                    <span class="time">{{ comment.createdAt | timeAgo }}</span>
                   </div>
                   <p class="comment-text">{{ comment.text }}</p>
                 </div>
@@ -150,7 +150,7 @@
         }
       }
 
-      <div #infiniteScrollTrigger class="scroll-trigger" style="height: 1px; width: 100%; margin-top: 20px;">
+      <div appInfiniteScroll (scrolled)="loadMore()" class="scroll-trigger" style="height: 1px; width: 100%; margin-top: 20px;">
         @if (loadingMore())
         {
           <div class="profile-status" style="padding: 20px 0;">

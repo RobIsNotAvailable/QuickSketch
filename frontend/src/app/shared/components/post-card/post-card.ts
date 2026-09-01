@@ -5,12 +5,13 @@ import { Sketch } from '../../../core/models/sketch.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { SketchService } from '../../../core/services/sketch.service';
 import { ConfirmModal } from '../confirm-modal/confirm-modal';
+import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 
 @Component
 ({
   selector: 'app-post-card',
   standalone: true,
-  imports: [FormsModule, RouterLink, ConfirmModal],
+  imports: [FormsModule, RouterLink, ConfirmModal, TimeAgoPipe],
   templateUrl: './post-card.html',
   styleUrl: './post-card.scss'
 })
@@ -202,30 +203,4 @@ export class PostCard
     this.openCommentsDrawer.emit(this.sketch.id);
   }
 
-  timeAgo(dateString: string): string
-  {
-    const date = new Date(dateString).getTime();
-    const now = new Date().getTime();
-    const seconds = Math.floor((now - date) / 1000);
-
-    if (seconds < 60)
-    {
-      return 'Just now';
-    }
-    
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60)
-    {
-      return `${minutes}m ago`;
-    }
-    
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24)
-    {
-      return `${hours}h ago`;
-    }
-    
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-  }
 }

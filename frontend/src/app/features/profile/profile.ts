@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UserService } from '../../core/services/user.service';
 import { SketchService } from '../../core/services/sketch.service';
@@ -6,16 +6,18 @@ import { CommentService } from '../../core/services/comment.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Sketch } from '../../core/models/sketch.model';
 import { CommentResponse } from '../../core/models/comment.model';
+import { InfiniteScrollDirective } from '../../shared/directives/infinite-scroll.directive';
+import { TimeAgoPipe } from '../../shared/pipes/time-ago.pipe';
 
 @Component
 ({
   selector: 'app-profile',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, InfiniteScrollDirective, TimeAgoPipe],
   templateUrl: './profile.html',
   styleUrl: './profile.scss'
 })
-export class Profile implements OnInit, AfterViewInit, OnDestroy
+export class Profile implements OnInit
 {
   route = inject(ActivatedRoute);
   router = inject(Router);
@@ -45,9 +47,6 @@ export class Profile implements OnInit, AfterViewInit, OnDestroy
   private followedPage = 0;
   private followedHasMore = true;
 
-  @ViewChild('infiniteScrollTrigger') scrollTrigger!: ElementRef;
-  private observer?: IntersectionObserver;
-
   ngOnInit(): void
   {
     this.route.params.subscribe(params =>
@@ -64,19 +63,6 @@ export class Profile implements OnInit, AfterViewInit, OnDestroy
         }
       }
     });
-  }
-
-  ngAfterViewInit(): void
-  {
-    this.setupIntersectionObserver();
-  }
-
-  ngOnDestroy(): void
-  {
-    if(this.observer)
-    {
-      this.observer.disconnect();
-    }
   }
 
   loadProfileData(id: number): void
@@ -168,7 +154,7 @@ export class Profile implements OnInit, AfterViewInit, OnDestroy
 
   loadMore(): void
   {
-    if(this.loadingMore())
+    if(this.loading() || this.loadingMore())
     {
       return;
     }
@@ -176,10 +162,14 @@ export class Profile implements OnInit, AfterViewInit, OnDestroy
     const tab = this.activeTab();
     const id = this.userId();
 
-    if(tab === 'sketches' && !this.sketchHasMore) return;
-    if(tab === 'comments' && !this.commentHasMore) return;
-    if(tab === 'followers' && !this.followerHasMore) return;
-    if(tab === 'followed' && !this.followedHasMore) return;
+    const hasMore = tab === 'sketches' ? this.sketchHasMore :
+                    tab === 'comments' ? this.commentHasMore :
+                    tab === 'followers' ? this.followerHasMore : this.followedHasMore;
+
+    if (!hasMore)
+    {
+      return;
+    }
 
     this.loadingMore.set(true);
 
@@ -285,39 +275,6 @@ export class Profile implements OnInit, AfterViewInit, OnDestroy
     }
   }
 
-  private setupIntersectionObserver(): void
-  {
-    const options = 
-    {
-      root: null,
-      rootMargin: '200px',
-      threshold: 0.1
-    };
-
-    this.observer = new IntersectionObserver((entries) => 
-    {
-      entries.forEach(entry => 
-      {
-        if(entry.isIntersecting && !this.loading() && !this.loadingMore())
-        {
-          const tab = this.activeTab();
-          const hasMore = tab === 'sketches' ? this.sketchHasMore :
-                          tab === 'comments' ? this.commentHasMore :
-                          tab === 'followers' ? this.followerHasMore : this.followedHasMore;
-          if(hasMore)
-          {
-            this.loadMore();
-          }
-        }
-      });
-    }, options);
-
-    if(this.scrollTrigger)
-    {
-      this.observer.observe(this.scrollTrigger.nativeElement);
-    }
-  }
-
   isOwnProfile(): boolean
   {
     return this.authService.currentUserId() === this.userId();
@@ -338,29 +295,5 @@ export class Profile implements OnInit, AfterViewInit, OnDestroy
       },
       error: (err) => console.error(err)
     });
-  }
-
-  timeAgo(dateString: string): string
-  {
-    const date = new Date(dateString).getTime();
-    const now = new Date().getTime();
-    const seconds = Math.floor((now - date) / 1000);
-
-    if(seconds < 60)
-    {
-      return 'Just now';
-    }
-    const minutes = Math.floor(seconds / 60);
-    if(minutes < 60)
-    {
-      return `${minutes}m ago`;
-    }
-    const hours = Math.floor(minutes / 60);
-    if(hours < 24)
-    {
-      return `${hours}h ago`;
-    }
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
   }
 }
