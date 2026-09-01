@@ -89,11 +89,17 @@
           <div class="comments-list">
             @for (comment of comments(); track comment.id)
             {
-              <div class="comment-card" [routerLink]="['/post', comment.sketchId]">
-                <div class="comment-meta">
-                  <span class="time">{{ timeAgo(comment.createdAt) }}</span>
+              <div class="comment-card" [routerLink]="['/post', comment.sketchId]" [queryParams]="{ openComments: 'true' }">
+                <div class="comment-avatar small">
+                  <i class="bx bx-user"></i>
                 </div>
-                <p class="comment-text">{{ comment.text }}</p>
+                <div class="comment-main">
+                  <div class="comment-header">
+                    <span class="author">{{ profile()?.username }}</span>
+                    <span class="time">{{ timeAgo(comment.createdAt) }}</span>
+                  </div>
+                  <p class="comment-text">{{ comment.text }}</p>
+                </div>
               </div>
             }
           </div>
@@ -126,7 +132,7 @@
         @if (followed().length === 0)
         {
           <div class="empty-state">
-            <i class="bx bx-user-plus"></i>
+            <i class="bx bx-user"></i>
             <p>Not following anyone yet.</p>
           </div>
         }
@@ -143,6 +149,15 @@
           </div>
         }
       }
+
+      <div #infiniteScrollTrigger class="scroll-trigger" style="height: 1px; width: 100%; margin-top: 20px;">
+        @if (loadingMore())
+        {
+          <div class="profile-status" style="padding: 20px 0;">
+            <i class="bx bx-loader-alt bx-spin"></i>
+          </div>
+        }
+      </div>
     </div>
   }
 </div>

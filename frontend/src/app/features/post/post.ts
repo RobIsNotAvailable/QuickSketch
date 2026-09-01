@@ -26,14 +26,22 @@ export class Post implements OnInit
   ngOnInit(): void
   {
     const id = Number(this.route.snapshot.paramMap.get('id'));
+    const shouldOpenComments = this.route.snapshot.queryParamMap.get('openComments') === 'true';
+
     if(id)
     {
+      this.activeSketchId.set(id);
       this.sketchService.getSketchById(id).subscribe
       ({
         next: (res) =>
         {
           this.sketch.set(res);
           this.loading.set(false);
+
+          if(shouldOpenComments)
+          {
+            this.isCommentsDrawerOpen.set(true);
+          }
         },
         error: (err) =>
         {

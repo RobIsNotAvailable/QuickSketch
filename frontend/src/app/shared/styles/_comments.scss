@@ -1,0 +1,70 @@
+@mixin comment-card-styles()
+{
+  display: flex;
+  gap: 12px;
+  
+  .comment-avatar
+  {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+
+    i
+    {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+    }
+
+    &.small
+    {
+      width: 28px;
+      height: 28px;
+
+      i
+      {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .comment-main
+  {
+    flex: 1;
+
+    .comment-header
+    {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+
+      .author
+      {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+      }
+
+      .time
+      {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+    }
+
+    .comment-text
+    {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin: 0;
+      word-break: break-word;
+    }
+  }
+}
