@@ -1,0 +1,324 @@
+.leaderboard-container
+{
+  width: 650px;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+  padding: 0 15px;
+
+  @media (max-width: 768px)
+  {
+    width: 100%;
+    padding: 0 10px;
+    gap: 12px;
+  }
+
+  h2
+  {
+    text-align: center;
+    margin: 0 0 5px 0;
+    font-size: 1.8rem;
+    color: var(--text-primary);
+
+    @media (max-width: 768px)
+    {
+      font-size: 1.4rem;
+    }
+  }
+
+  .sort-tabs
+  {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+
+    button
+    {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 12px 10px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+      text-align: center;
+
+      @media (max-width: 768px)
+      {
+        padding: 8px 5px;
+        font-size: 0.85rem;
+      }
+
+      &:hover
+      {
+        color: var(--text-primary);
+      }
+
+      &.active
+      {
+        color: var(--text-primary);
+
+        &::after
+        {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background: var(--text-primary);
+        }
+      }
+    }
+  }
+
+  .current-user-card
+  {
+    background: color-mix(in srgb, var(--accent-color) 15%, var(--bg-secondary));
+    border: 2px solid var(--accent-color);
+    border-radius: 16px;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-sizing: border-box;
+    width: 100%;
+
+    @media (max-width: 768px)
+    {
+      padding: 8px 16px;
+      gap: 10px;
+      border-radius: 12px;
+    }
+
+    .rank-badge
+    {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--accent-color);
+      min-width: 45px;
+      text-align: center;
+
+      @media (max-width: 768px)
+      {
+        font-size: 1.1rem;
+        min-width: 30px;
+      }
+    }
+
+    .user-info
+    {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .username
+      {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+
+        @media (max-width: 768px)
+        {
+          font-size: 0.9rem;
+        }
+      }
+
+      .stats
+      {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+
+        @media (max-width: 768px)
+        {
+          font-size: 0.75rem;
+          gap: 8px;
+        }
+
+        strong
+        {
+          color: var(--accent-color);
+        }
+      }
+    }
+  }
+
+  .status
+  {
+    text-align: center;
+    padding: 40px;
+
+    i
+    {
+      font-size: 2.2rem;
+      color: var(--accent-color);
+    }
+  }
+
+  .entries-list
+  {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+
+    @media (max-width: 768px)
+    {
+      gap: 8px;
+    }
+
+    .entry-card
+    {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+      width: 100%;
+
+      @media (max-width: 768px)
+      {
+        padding: 8px 16px;
+        gap: 10px;
+        border-radius: 10px;
+      }
+
+      &:hover
+      {
+        border-color: var(--accent-color);
+      }
+
+      .rank-badge
+      {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--accent-color);
+        min-width: 45px;
+        text-align: center;
+
+        @media (max-width: 768px)
+        {
+          font-size: 0.95rem;
+          min-width: 30px;
+        }
+      }
+
+      .user-details
+      {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .username
+        {
+          font-weight: 700;
+          font-size: 1rem;
+          color: var(--text-primary);
+
+          @media (max-width: 768px)
+          {
+            font-size: 0.9rem;
+          }
+        }
+
+        .stats
+        {
+          display: flex;
+          gap: 15px;
+          font-size: 0.85rem;
+          color: var(--text-secondary);
+
+          @media (max-width: 768px)
+          {
+            font-size: 0.75rem;
+            gap: 8px;
+          }
+
+          strong
+          {
+            color: var(--accent-color);
+          }
+        }
+      }
+    }
+  }
+
+  .pagination-controls
+  {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0 30px 0;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 768px)
+    {
+      gap: 10px;
+      padding: 10px 0 80px 0;
+    }
+
+    .page-btn
+    {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: border-color 0.2s, background-color 0.2s;
+
+      @media (max-width: 768px)
+      {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
+      &:hover:not(:disabled)
+      {
+        border-color: var(--accent-color);
+        background: var(--bg-hover);
+      }
+
+      &:disabled
+      {
+        opacity: 0.4;
+        cursor: default;
+      }
+    }
+
+    .page-info
+    {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      white-space: nowrap;
+
+      @media (max-width: 768px)
+      {
+        font-size: 0.80rem;
+      }
+    }
+  }
+}

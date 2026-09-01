@@ -31,4 +31,9 @@ export class UserService
   {
     return this.http.post<boolean>(`${this.apiUrl}/${targetUserId}/follow`, {});
   }
+
+  getLeaderboard(sortBy: string = 'guesserRank', page: number = 0): Observable<any>
+  {
+    return this.http.get<any>(`${this.apiUrl}/leaderboard?sortBy=${sortBy}&page=${page}&size=10`);
+  }
 }

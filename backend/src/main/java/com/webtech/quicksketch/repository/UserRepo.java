@@ -45,7 +45,7 @@ public interface UserRepo extends JpaRepository<User, Long>
 
     @Query
     (value = """
-        WITH leaderboard AS
+        WITH ranked_users AS 
         (
             SELECT 
                 u.id AS userId,
@@ -62,13 +62,18 @@ public interface UserRepo extends JpaRepository<User, Long>
                 RANK() OVER (ORDER BY (SELECT COUNT(DISTINCT us.sketch_id) FROM user_sketches us WHERE us.user_id = u.id AND us.guessed = TRUE) DESC) AS guesserRank,
                 RANK() OVER (ORDER BY COALESCE((SELECT (SUM(CASE WHEN us_art.guessed = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(us_art.sketch_id) FROM sketches s_art JOIN user_sketches us_art ON us_art.sketch_id = s_art.id WHERE s_art.author_id = u.id), 0.0) DESC) AS artistRank
             FROM users u
+        ),
+        top_fifty AS 
+        (
+            SELECT * FROM ranked_users
+            ORDER BY 
+                CASE WHEN :sortBy = 'guesserRank' THEN guesserRank END ASC,
+                CASE WHEN :sortBy = 'artistRank' THEN artistRank END ASC
+            LIMIT 50
         )
-        SELECT * FROM leaderboard
-        ORDER BY 
-            CASE WHEN :sortBy = 'guesserRank' THEN guesserRank END ASC,
-            CASE WHEN :sortBy = 'artistRank' THEN artistRank END ASC
+        SELECT * FROM top_fifty
         """, 
-        countQuery = "SELECT COUNT(*) FROM users",
+        countQuery = "SELECT LEAST(COUNT(*), 50) FROM users",
         nativeQuery = true
     )
     Page<LeaderboardEntryProjection> getLeaderboard(@Param("sortBy") String sortBy, Pageable pageable);
