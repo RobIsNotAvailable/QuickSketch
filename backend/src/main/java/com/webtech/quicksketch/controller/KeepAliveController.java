@@ -1,18 +1,17 @@
 package com.webtech.quicksketch.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import lombok.RequiredArgsConstructor;
 
-@RequestMapping("/api/guesses")
-@RequiredArgsConstructor
+@RequestMapping("/api/heartbeat")
 @RestController
 public class KeepAliveController
 {
     @GetMapping("/bombo")
-    public String bombo()
+    public ResponseEntity<String> bombo()
     {
-        return "clat";
+        return ResponseEntity.ok("clat");
     }
 }
