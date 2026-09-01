@@ -1,0 +1,96 @@
+<div class="drawer-panel" [class.open]="isOpen">
+  <div class="drawer-header">
+    <h3>Comments</h3>
+    <button class="btn-close" (click)="close()">
+      <i class="bx bx-x"></i>
+    </button>
+  </div>
+
+  <div class="drawer-content">
+    @if (loading())
+    {
+      <div class="loading-state"><i class="bx bx-loader-alt bx-spin"></i></div>
+    }
+    @else if (comments().length === 0)
+    {
+      <div class="empty-state">No comments yet. Be the first!</div>
+    }
+    @else
+    {
+      <div class="comments-list">
+        @for (comment of comments(); track comment.id)
+        {
+          <div class="comment-item">
+            <div class="comment-avatar"><i class="bx bx-user"></i></div>
+            
+            <div class="comment-main">
+              <div class="comment-header">
+                <span class="author">{{ comment.author.username }}</span>
+                <span class="time">{{ comment.createdAt | timeAgo }}</span>
+              </div>
+              <div class="text">{{ comment.text }}</div>
+              
+              <div class="comment-actions">
+                <button class="btn-text" (click)="setReply(comment.id, comment.author.username)">Reply</button>
+                <button class="btn-text" (click)="loadReplies(comment.id)">
+                  @if (loadingReplies()[comment.id])
+                  {
+                    <i class="bx bx-loader-alt bx-spin"></i>
+                  }
+                  @else
+                  {
+                    {{ showReplies()[comment.id] ? 'Hide replies' : 'See replies' }}
+                  }
+                </button>
+              </div>
+
+              @if (showReplies()[comment.id] && replies()[comment.id])
+              {
+                <div class="replies-list">
+                  @for (reply of replies()[comment.id]; track reply.id)
+                  {
+                    <div class="comment-item reply-item">
+                      <div class="comment-avatar small"><i class="bx bx-user"></i></div>
+                      <div class="comment-main">
+                        <div class="comment-header">
+                          <span class="author">{{ reply.author.username }}</span>
+                          <span class="time">{{ reply.createdAt | timeAgo }}</span>
+                        </div>
+                        <div class="text">{{ reply.text }}</div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="drawer-footer">
+    @if (replyingTo())
+    {
+      <div class="replying-badge">
+        <div class="reply-info">
+          <i class="bx bx-reply"></i>
+          <span>Replying to <strong>{{ replyingTo()!.username }}</strong></span>
+        </div>
+        <button (click)="setReply(replyingTo()!.id, replyingTo()!.username)"><i class="bx bx-x"></i></button>
+      </div>
+    }
+    <div class="input-row">
+      <input 
+        type="text" 
+        [placeholder]="replyingTo() ? 'Write a reply...' : 'Add a comment...'" 
+        [(ngModel)]="newCommentText" 
+        (keyup.enter)="submitComment()"
+        maxlength="500"
+      />
+      <button class="btn-send" (click)="submitComment()" [disabled]="!newCommentText().trim()">
+        <i class="bx bxs-send"></i>
+      </button>
+    </div>
+  </div>
+</div>

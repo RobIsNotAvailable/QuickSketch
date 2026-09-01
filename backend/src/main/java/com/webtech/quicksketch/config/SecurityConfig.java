@@ -2,6 +2,8 @@ package com.webtech.quicksketch.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,16 +24,17 @@ public class SecurityConfig
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
         http
+            .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests
             (
                 auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/logout").authenticated()
                 .requestMatchers("/api/auth/**").permitAll()
 
-                .requestMatchers("/api/users/leaderboard").permitAll()
-                .requestMatchers("/api/users/{userId}/stats").permitAll()
-                .requestMatchers("/api/users/**").authenticated()
+                .requestMatchers("/api/users/follow").authenticated()
+                .requestMatchers("/api/users/**").permitAll()
 
                 .requestMatchers("/api/sketches/init").authenticated()
                 .requestMatchers("/api/sketches/create").authenticated()

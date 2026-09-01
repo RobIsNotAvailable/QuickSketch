@@ -1,0 +1,20 @@
+<div class="post-detail-container">
+  @if(loading())
+  {
+    <div class="status"><i class="bx bx-loader-alt bx-spin"></i></div>
+  }
+  @else if(sketch())
+  {
+    <app-post-card [sketch]="sketch()!" (openCommentsDrawer)="openComments($event)"></app-post-card>
+  }
+  @else
+  {
+    <div class="status"><p>Sketch not found</p></div>
+  }
+
+  <app-comments-drawer
+    [sketchId]="activeSketchId()"
+    [isOpen]="isCommentsDrawerOpen()"
+    (closeDrawer)="closeComments()">
+  </app-comments-drawer>
+</div>

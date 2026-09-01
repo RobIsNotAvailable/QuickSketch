@@ -31,58 +31,49 @@ public interface UserRepo extends JpaRepository<User, Long>
     @Query(value = "DELETE FROM follows WHERE follower_id = :followerId AND followed_id = :followedId", nativeQuery = true)
     void unfollowUser(@Param("followerId") Long followerId, @Param("followedId") Long followedId);
 
-    @Query
-    ("""
-        SELECT COALESCE
-        (
-            (COUNT(DISTINCT CASE WHEN g.accuracy = com.webtech.quicksketch.model.enums.GuessAccuracy.CORRECT THEN 1 END) * 100.0) / 
-            NULLIF(COUNT(DISTINCT (g.user.id, g.sketch.id)), 0), 
+    @Query(value = """
+        SELECT COALESCE(
+            (SUM(CASE WHEN us.guessed = TRUE THEN 1 ELSE 0 END) * 100.0) / 
+            NULLIF(COUNT(us.sketch_id), 0), 
             0.0
         )
-        FROM Guess g
-        WHERE g.sketch.author.id = :authorId
-    """)
+        FROM user_sketches us
+        JOIN sketches s ON us.sketch_id = s.id
+        WHERE s.author_id = :authorId
+    """, nativeQuery = true)
     Double calculateArtistWinRate(@Param("authorId") Long authorId);
 
     @Query
     (value = """
-        WITH leaderboard AS
+        WITH ranked_users AS 
         (
             SELECT 
                 u.id AS userId,
                 u.username AS username,
-                COUNT(DISTINCT CASE WHEN g.accuracy = 'CORRECT' THEN 1 END) AS wordsGuessed,
-                COALESCE
-                (
-                    (COUNT(DISTINCT CASE WHEN g_art.accuracy = 'CORRECT' THEN 1 END) * 100.0) / 
-                    NULLIF(COUNT(DISTINCT CASE WHEN g_art.user_id IS NOT NULL AND g_art.sketch_id IS NOT NULL THEN ROW(g_art.user_id, g_art.sketch_id) END), 0),
-                    0.0
-                ) AS artistWinRate,
-                RANK() OVER
-                (
-                    ORDER BY COUNT(DISTINCT CASE WHEN g.accuracy = 'CORRECT' THEN 1 END) DESC
-                ) AS guesserRank,
-                RANK() OVER
-                (
-                    ORDER BY COALESCE
+                (SELECT COUNT(DISTINCT us.sketch_id) FROM user_sketches us WHERE us.user_id = u.id AND us.guessed = TRUE) AS wordsGuessed,
+                COALESCE(
                     (
-                        (COUNT(DISTINCT CASE WHEN g_art.accuracy = 'CORRECT' THEN 1 END) * 100.0) / 
-                        NULLIF(COUNT(DISTINCT CASE WHEN g_art.user_id IS NOT NULL AND g_art.sketch_id IS NOT NULL THEN ROW(g_art.user_id, g_art.sketch_id) END), 0),
-                        0.0
-                    ) DESC
-                ) AS artistRank
+                        SELECT (SUM(CASE WHEN us_art.guessed = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(us_art.sketch_id)
+                        FROM sketches s_art 
+                        JOIN user_sketches us_art ON us_art.sketch_id = s_art.id 
+                        WHERE s_art.author_id = u.id
+                    ), 0.0
+                ) AS artistWinRate,
+                RANK() OVER (ORDER BY (SELECT COUNT(DISTINCT us.sketch_id) FROM user_sketches us WHERE us.user_id = u.id AND us.guessed = TRUE) DESC) AS guesserRank,
+                RANK() OVER (ORDER BY COALESCE((SELECT (SUM(CASE WHEN us_art.guessed = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(us_art.sketch_id) FROM sketches s_art JOIN user_sketches us_art ON us_art.sketch_id = s_art.id WHERE s_art.author_id = u.id), 0.0) DESC) AS artistRank
             FROM users u
-            LEFT JOIN guesses g ON g.user_id = u.id
-            LEFT JOIN sketches s ON s.author_id = u.id
-            LEFT JOIN guesses g_art ON g_art.sketch_id = s.id
-            GROUP BY u.id, u.username
+        ),
+        top_fifty AS 
+        (
+            SELECT * FROM ranked_users
+            ORDER BY 
+                CASE WHEN :sortBy = 'guesserRank' THEN guesserRank END ASC,
+                CASE WHEN :sortBy = 'artistRank' THEN artistRank END ASC
+            LIMIT 50
         )
-        SELECT * FROM leaderboard
-        ORDER BY 
-            CASE WHEN :sortBy = 'guesserRank' THEN guesserRank END ASC,
-            CASE WHEN :sortBy = 'artistRank' THEN artistRank END ASC
+        SELECT * FROM top_fifty
         """, 
-        countQuery = "SELECT COUNT(*) FROM users",
+        countQuery = "SELECT LEAST(COUNT(*), 50) FROM users",
         nativeQuery = true
     )
     Page<LeaderboardEntryProjection> getLeaderboard(@Param("sortBy") String sortBy, Pageable pageable);
@@ -94,34 +85,36 @@ public interface UserRepo extends JpaRepository<User, Long>
             SELECT 
                 u.id AS userId,
                 u.username AS username,
-                COUNT(DISTINCT CASE WHEN g.accuracy = 'CORRECT' THEN 1 END) AS "wordsGuessed",
-                COALESCE
-                (
-                    (COUNT(DISTINCT CASE WHEN g_art.accuracy = 'CORRECT' THEN 1 END) * 100.0) / 
-                    NULLIF(COUNT(DISTINCT CASE WHEN g_art.user_id IS NOT NULL AND g_art.sketch_id IS NOT NULL THEN ROW(g_art.user_id, g_art.sketch_id) END), 0),
-                    0.0
-                ) AS artistWinRate,
-                RANK() OVER
-                (
-                    ORDER BY COUNT(DISTINCT CASE WHEN g.accuracy = 'CORRECT' THEN 1 END) DESC
-                ) AS guesserRank,
-                RANK() OVER
-                (
-                    ORDER BY COALESCE
+                (SELECT COUNT(DISTINCT us.sketch_id) FROM user_sketches us WHERE us.user_id = u.id AND us.guessed = TRUE) AS "wordsGuessed",
+                COALESCE(
                     (
-                        (COUNT(DISTINCT CASE WHEN g_art.accuracy = 'CORRECT' THEN 1 END) * 100.0) / 
-                        NULLIF(COUNT(DISTINCT CASE WHEN g_art.user_id IS NOT NULL AND g_art.sketch_id IS NOT NULL THEN ROW(g_art.user_id, g_art.sketch_id) END), 0),
-                        0.0
-                    ) DESC
-                ) AS artistRank
+                        SELECT (SUM(CASE WHEN us_art.guessed = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(us_art.sketch_id)
+                        FROM sketches s_art 
+                        JOIN user_sketches us_art ON us_art.sketch_id = s_art.id 
+                        WHERE s_art.author_id = u.id
+                    ), 0.0
+                ) AS artistWinRate,
+                RANK() OVER (ORDER BY (SELECT COUNT(DISTINCT us.sketch_id) FROM user_sketches us WHERE us.user_id = u.id AND us.guessed = TRUE) DESC) AS guesserRank,
+                RANK() OVER (ORDER BY COALESCE((SELECT (SUM(CASE WHEN us_art.guessed = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(us_art.sketch_id) FROM sketches s_art JOIN user_sketches us_art ON us_art.sketch_id = s_art.id WHERE s_art.author_id = u.id), 0.0) DESC) AS artistRank
             FROM users u
-            LEFT JOIN guesses g ON g.user_id = u.id
-            LEFT JOIN sketches s ON s.author_id = u.id
-            LEFT JOIN guesses g_art ON g_art.sketch_id = s.id
-            GROUP BY u.id, u.username
         )
         SELECT * FROM leaderboard WHERE userId = :userId
     """, nativeQuery = true)
     Optional<LeaderboardEntryProjection> getLeaderboardEntryByUserId(@Param("userId") Long userId);
-}
 
+    @Query
+    (value = """
+        SELECT u.* FROM users u
+        JOIN follows f ON u.id = f.followed_id
+        WHERE f.follower_id = :userId
+    """, nativeQuery = true)
+    Page<User> getFollowed(@Param("userId") Long userId, Pageable pageable);
+
+    @Query
+    (value = """
+        SELECT u.* FROM users u
+        JOIN follows f ON u.id = f.follower_id
+        WHERE f.followed_id = :userId
+    """, nativeQuery = true)
+    Page<User> getFollowers(@Param("userId") Long userId, Pageable pageable);
+}

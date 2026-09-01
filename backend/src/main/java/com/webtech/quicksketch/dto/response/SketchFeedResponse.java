@@ -14,6 +14,7 @@ public record SketchFeedResponse(
     int likes,
     int dislikes,
     ReactionType currentUserReaction,
+    Boolean isUserFollowing,
     int remainingGuesses,
     int commentsCount
 ) {}

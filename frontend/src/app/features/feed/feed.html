@@ -1,0 +1,45 @@
+<div class="feed-container">
+  
+  <div class="feed-header">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="loadFeed()">For You</a>
+    <a routerLink="/following" routerLinkActive="active" (click)="loadFeed()">Following</a>
+  </div>
+
+  <div class="feed-content">
+    @if (loading())
+    {
+      <div class="feed-status">
+        <i class="bx bx-loader-alt bx-spin"></i>
+      </div>
+    }
+    @else if (sketches().length === 0)
+    {
+      <div class="feed-status">
+        <p>No sketches found here yet</p>
+      </div>
+    }
+    @else
+    {
+      @for (sketch of sketches(); track sketch.id)
+      {
+        <app-post-card [sketch]="sketch" (openCommentsDrawer)="openComments($event)"></app-post-card>
+      }
+    }
+
+    <div appInfiniteScroll (scrolled)="loadMore()" class="scroll-trigger" style="height: 1px; width: 100%; margin-bottom: 20px;">
+      @if (loadingMore())
+      {
+        <div class="feed-status" style="padding: 20px 0;">
+          <i class="bx bx-loader-alt bx-spin"></i>
+        </div>
+      }
+    </div>
+  </div>
+
+  <app-comments-drawer
+    [sketchId]="activeSketchId()"
+    [isOpen]="isCommentsDrawerOpen()"
+    (closeDrawer)="closeComments()">
+  </app-comments-drawer>
+
+</div>

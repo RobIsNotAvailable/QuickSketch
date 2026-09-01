@@ -1,0 +1,184 @@
+<div class="sketcher-container">
+
+  @if (activeModal() === 'publish')
+  {
+    <app-confirm-modal
+      title="Publish Sketch?"
+      message="Are you sure you want to publish this sketch?"
+      confirmText="Yes, Publish"
+      cancelText="Keep Drawing"
+      (confirm)="onSave()"
+      (cancel)="activeModal.set(null)">
+    </app-confirm-modal>
+  }
+
+  @if (activeModal() === 'exit')
+  {
+    <app-confirm-modal
+      title="Leave Sketch?"
+      message="Are you sure you want to leave? Unsaved progress will be lost."
+      confirmText="Yes, Leave"
+      cancelText="Keep Drawing"
+      (confirm)="onExitConfirm()"
+      (cancel)="onExitCancel()">
+    </app-confirm-modal>
+  }
+
+  @if (gameState() === 'LOADING')
+  {
+    <div class="state-card">
+      <i class="bx bx-loader-alt bx-spin"></i>
+      <h2>Finding words...</h2>
+    </div>
+  }
+
+  @if (gameState() === 'SELECTING')
+  {
+    <div class="state-card selection-card">
+      <h2>Choose your word</h2>
+      <p>Pick one of these words to draw</p>
+      
+      <div class="words-grid">
+        @for (word of targetWords(); track word.id)
+        {
+          <button class="btn-word" (click)="chooseWord(word)">{{ word.text }}</button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (gameState() === 'DRAWING')
+  {
+    <div class="sketcher-card">
+      
+      <div class="drawing-header">
+        <div class="word-display">
+          <strong>{{ selectedWord()?.text }}</strong>
+        </div>
+
+        <div class="timer-display" [class.danger]="timeLeft() <= 10">
+          <i class="bx bx-time-five"></i>
+          <span>{{ getFormattedTime() }}</span>
+        </div>
+      </div>
+
+      <div class="workspace">
+        <div class="left-column">
+          <div class="canvas-wrapper">
+            <canvas
+              #canvas
+              width="500"
+              height="500"
+              (mousedown)="startAction($event)"
+              (mousemove)="draw($event)"
+              (mouseup)="stopAction()"
+              (mouseleave)="stopAction()"
+              (mouseenter)="$event.buttons === 1 && startAction($event)"
+              (touchstart)="startAction($event)"
+              (touchmove)="draw($event)"
+              (touchend)="stopAction()"
+              (touchcancel)="stopAction()"
+            ></canvas>
+
+            @if (showTimeUpAlert())
+            {
+              <div class="time-up-overlay">
+                <i class="bx bx-time-five"></i>
+                <span>Time's Up!</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="right-column">
+          <div class="controls-panel">
+            <div class="color-palette">
+              @for (color of predefinedColors; track color)
+              {
+                <button 
+                  class="color-swatch" 
+                  [class.active]="currentColor() === color && currentTool() !== 'eraser'"
+                  [style.background-color]="color"
+                  [disabled]="timeExpired()"
+                  (click)="selectColor(color)">
+                </button>
+              }
+
+              @for (color of customColors(); track color)
+              {
+                <button 
+                  class="color-swatch custom-slot" 
+                  [class.active]="currentColor() === color && currentTool() !== 'eraser'"
+                  [style.background-color]="color"
+                  [disabled]="timeExpired()"
+                  (click)="selectColor(color)">
+                </button>
+              }
+              
+              <div class="custom-color-wrapper">
+                <button 
+                  class="color-swatch picker-trigger"
+                  [disabled]="timeExpired()"
+                  (click)="openPicker()">
+                  <i class="bx bx-palette palette-icon"></i>
+                </button>
+                
+                <input 
+                  #colorPicker
+                  type="color" 
+                  class="hidden-color-picker"
+                  (change)="onColorPicked($any($event.target).value)">
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="tools-group">
+                <button class="tool-btn" [class.active]="currentTool() === 'pen'" [disabled]="timeExpired()" (click)="currentTool.set('pen')">
+                  <i class="bx bx-pencil"></i>
+                </button>
+                <button class="tool-btn" [class.active]="currentTool() === 'eraser'" [disabled]="timeExpired()" (click)="currentTool.set('eraser')">
+                  <i class="bx bx-eraser"></i>
+                </button>
+                <button class="tool-btn" [class.active]="currentTool() === 'background'" [disabled]="timeExpired()" (click)="currentTool.set('background')">
+                  <i class="bx bxs-color-fill"></i>
+                </button>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="history-group">
+                <button class="tool-btn" (click)="canvasService.undo()" [disabled]="canvasService.historyStep() <= 0 || timeExpired()">
+                  <i class="bx bx-undo"></i>
+                </button>
+                <button class="tool-btn" (click)="canvasService.redo()" [disabled]="canvasService.historyStep() >= canvasService.historyLength() - 1 || timeExpired()">
+                  <i class="bx bx-redo"></i>
+                </button>
+                <button class="tool-btn danger-btn" (click)="canvasService.clearCanvas()" [disabled]="canvasService.historyStep() <= 0 || timeExpired()">
+                  <i class="bx bx-trash"></i>
+                </button>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="sizes-group">
+                @for (size of brushSizes; track size)
+                {
+                  <button class="size-btn" [class.active]="currentSize() === size" [disabled]="timeExpired()" (click)="currentSize.set(size)">
+                    <span class="size-dot" [style.width.px]="size" [style.height.px]="size"></span>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="action-footer">
+            <button type="button" class="btn-publish" (click)="activeModal.set('publish')" [disabled]="isPublishing() || canvasService.historyStep() <= 0">
+              {{ isPublishing() ? 'Publishing...' : 'Publish Sketch' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

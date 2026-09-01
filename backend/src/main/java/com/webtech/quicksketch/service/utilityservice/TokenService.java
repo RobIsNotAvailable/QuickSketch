@@ -35,12 +35,13 @@ public class TokenService
     private final RefreshTokenRepo refreshTokenRepo;
 
     private static final int JWT_EXPIRATION_TIME = 1000 * 60 * 15; // 15 minuti
-    private static final int REFRESH_EXPIRATION_TIME = 60 * 60 * 24 * 30; // 30 giorni
+    private static final long REFRESH_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 30; // 30 giorni
 
     public String generateAccessToken(User user)
     {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
+        claims.put("username", user.getUsername());
 
         return Jwts.builder()
                 .claims(claims)

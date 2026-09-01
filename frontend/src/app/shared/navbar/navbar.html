@@ -1,0 +1,60 @@
+<nav class="navbar">
+  <div class="nav-brand">
+    <a routerLink="/" title="QuickSketch">
+      <i class="bx bx-pencil logo-icon"></i>
+      <span class="logo-text">QuickSketch</span>
+    </a>
+  </div>
+
+  <ul class="nav-links">
+    <li>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <i class="bx bx-home-alt icon"></i>
+        <span class="label">Home</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/leaderboard" routerLinkActive="active">
+        <i class="bx bx-trophy icon"></i>
+        <span class="label">Leaderboard</span>
+      </a>
+    </li>
+
+    @if (authService.currentUser())
+    {
+      <li>
+        <a routerLink="/sketcher" routerLinkActive="active" class="btn-sketch">
+          <i class="bx bx-plus-circle icon"></i>
+          <span class="label">Create</span>
+        </a>
+      </li>
+      <li>
+        <a [routerLink]="['/profile', authService.currentUserId() + '-' + authService.currentUser()]" routerLinkActive="active">
+          <i class="bx bx-user icon"></i>
+          <span class="label">{{ authService.currentUser() }}</span>
+        </a>
+      </li>
+      <li class="logout-item">
+        <button (click)="onLogout()" class="btn-logout">
+          <i class="bx bx-log-out icon"></i>
+          <span class="label">Log Out</span>
+        </button>
+      </li>
+    }
+    @else
+    {
+      <li>
+        <a routerLink="/login" routerLinkActive="active">
+          <i class="bx bx-log-in icon"></i>
+          <span class="label">Log In</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/register" routerLinkActive="active">
+          <i class="bx bx-user-plus icon"></i>
+          <span class="label">Sign Up</span>
+        </a>
+      </li>
+    }
+  </ul>
+</nav>

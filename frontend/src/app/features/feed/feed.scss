@@ -1,0 +1,75 @@
+@use '../../shared/styles/mixins' as *;
+
+.feed-container
+{
+  width: 100%;
+  max-width: 600px;
+  min-width: 600px;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px)
+  {
+    min-width: 100%;
+  }
+
+  .feed-header
+  {
+    display: flex;
+    gap: 24px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-primary);
+    z-index: 10;
+
+    @media (max-width: 768px)
+    {
+      justify-content: center;
+    }
+
+    a, span
+    {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      position: relative;
+
+      &:hover
+      {
+        color: var(--text-primary);
+      }
+
+      &.active
+      {
+        color: var(--text-primary);
+
+        &::after
+        {
+          content: '';
+          position: absolute;
+          bottom: -16px;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background-color: var(--text-primary);
+        }
+      }
+    }
+
+    span.disabled
+    {
+      opacity: 0.4;
+    }
+  }
+
+  .feed-status
+  {
+    @include status-loader(60px, 2rem);
+  }
+}

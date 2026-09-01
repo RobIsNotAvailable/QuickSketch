@@ -1,0 +1,91 @@
+<div class="auth-card">
+  <h2>Create an Account</h2>
+
+  @if (errorMessage())
+  {
+    <div class="error-alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-field-structure" [class.has-error]="fieldErrors()['username']">
+      <input
+        type="text"
+        id="username"
+        name="username"
+        placeholder=" "
+        [(ngModel)]="credentials.username"
+        (input)="clearFieldError('username')"
+        required
+      />
+      <label for="username">Username</label>
+    </div>
+
+    <div class="form-field-structure" [class.has-error]="fieldErrors()['email']">
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder=" "
+        [(ngModel)]="credentials.email"
+        (input)="clearFieldError('email')"
+        required
+      />
+      <label for="email">Email</label>
+    </div>
+
+    <div class="form-field-structure" [class.has-error]="fieldErrors()['password']">
+      <div class="input-wrapper">
+        <input
+          [type]="showPassword() ? 'text' : 'password'"
+          id="password"
+          name="password"
+          placeholder=" "
+          [(ngModel)]="credentials.password"
+          (input)="clearFieldError('password')"
+          required
+        />
+        <label for="password">Password</label>
+        <button
+          type="button"
+          class="toggle-password"
+          (click)="togglePasswordVisibility()"
+        >
+          <i [class]="showPassword() ? 'bx bx-show' : 'bx bx-hide'"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-field-structure" [class.has-error]="fieldErrors()['confirmPassword']">
+      <div class="input-wrapper">
+        <input
+          [type]="showConfirmPassword() ? 'text' : 'password'"
+          id="confirmPassword"
+          name="confirmPassword"
+          placeholder=" "
+          [(ngModel)]="confirmPassword"
+          (input)="clearFieldError('confirmPassword')"
+          required
+        />
+        <label for="confirmPassword">Confirm Password</label>
+        <button
+          type="button"
+          class="toggle-password"
+          (click)="toggleConfirmPasswordVisibility()"
+        >
+          <i [class]="showConfirmPassword() ? 'bx bx-show' : 'bx bx-hide'"></i>
+        </button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-black" [disabled]="!isFormValid()">
+      Sign Up
+    </button>
+  </form>
+
+  <div class="footer-section">
+    <span>Already have an account?</span>
+    <a routerLink="/login" class="btn-link">Log In</a>
+  </div>
+</div>

@@ -1,0 +1,240 @@
+.auth-card
+{
+  background: var(--bg-secondary);
+  padding: 40px 50px;
+  border-radius: 25px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 420px;
+  
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+
+  h2
+  {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    font-weight: 800;
+  }
+
+  .error-alert
+  {
+    background-color: rgba(255, 77, 77, 0.1);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 0.8rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+    font-weight: 600;
+    
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .form-field-structure
+  {
+    position: relative;
+    margin-bottom: 28px;
+    width: 100%;
+
+    .input-wrapper
+    {
+      position: relative;
+      width: 100%;
+
+      input
+      {
+        padding-right: 45px !important;
+      }
+
+      .toggle-password
+      {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-secondary);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+
+        i
+        {
+          font-size: 1.3rem;
+        }
+
+        &:hover
+        {
+          color: var(--text-primary);
+        }
+      }
+    }
+
+    label
+    {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: all 0.2s ease;
+      pointer-events: none;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    input
+    {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      font-size: 1rem;
+      color: var(--text-primary);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      box-sizing: border-box;
+      outline: none;
+      background: var(--bg-primary);
+
+      &:focus ~ label,
+      &:not(:placeholder-shown) ~ label
+      {
+        top: 0px;
+        left: 14px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        background: linear-gradient(
+          to bottom, 
+          var(--bg-secondary) 0%, 
+          var(--bg-secondary) 50%, 
+          var(--bg-primary) 50%, 
+          var(--bg-primary) 100%
+        );
+        padding: 0 6px;
+        color: var(--accent-color);
+      }
+
+      &:focus
+      {
+        border-color: var(--accent-color);
+      }
+    }
+
+    &.has-error
+    {
+      input
+      {
+        border-color: var(--danger-color);
+
+        &:focus ~ label,
+        &:not(:placeholder-shown) ~ label
+        {
+          color: var(--danger-color);
+        }
+
+        &:focus
+        {
+          border-color: var(--danger-color);
+        }
+      }
+    }
+  }
+
+  .btn-black
+  {
+    width: 100%;
+    padding: 15px;
+    background: var(--accent-color);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:disabled
+    {
+      background: var(--border-color);
+      color: var(--text-secondary);
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    &:hover:not(:disabled)
+    {
+      filter: brightness(0.85);
+    }
+  }
+
+  .footer-section
+  {
+    margin-top: 25px;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+
+    span
+    {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .btn-link
+    {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: 2px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-decoration: none;
+      box-sizing: border-box;
+      transition: filter 0.2s ease, background-color 0.2s ease;
+
+      &:hover
+      {
+        background: var(--bg-hover);
+        filter: brightness(0.85);
+      }
+    }
+  }
+
+  @media (max-width: 768px)
+  {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    
+    margin: 2rem auto 4rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    
+    h2
+    {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+  }
+}

@@ -1,0 +1,52 @@
+@use'../../shared/styles/mixins' as *;
+
+@mixin comment-card-styles()
+{
+  display: flex;
+  gap: 12px;
+  
+  .comment-avatar
+  {
+    @include avatar-circle(36px, 1.2rem, 1px);
+
+    &.small
+    {
+      @include avatar-circle(28px, 1rem, 1px);
+    }
+  }
+
+  .comment-main
+  {
+    flex: 1;
+
+    .comment-header
+    {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+
+      .author
+      {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+      }
+
+      .time
+      {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+    }
+
+    .comment-text
+    {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin: 0;
+      word-break: break-word;
+    }
+  }
+}

@@ -1,0 +1,46 @@
+<div class="auth-card">
+  <h2>Log In to QuickSketch</h2>
+
+  @if (errorMessage())
+  {
+    <div class="error-alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+    <div class="form-field-structure">
+      <input
+        type="text"
+        id="key"
+        formControlName="key"
+        placeholder=" "
+      />
+      <label for="key">Username/Email</label>
+    </div>
+
+    <div class="form-field-structure">
+      <div class="input-wrapper">
+        <input
+          [type]="showPassword() ? 'text' : 'password'"
+          id="password"
+          formControlName="password"
+          placeholder=" "
+        />
+        <label for="password">Password</label>
+        <button type="button" class="toggle-password" (click)="toggleShowPassword()">
+          <i [class]="showPassword() ? 'bx bx-show' : 'bx bx-hide'"></i>
+        </button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-black" [disabled]="loginForm.invalid">
+      Log In
+    </button>
+  </form>
+
+  <div class="footer-section">
+    <span>Don't have an account?</span>
+    <a routerLink="/register" class="btn-link">Sign Up</a>
+  </div>
+</div>

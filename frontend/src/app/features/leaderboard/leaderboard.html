@@ -1,0 +1,79 @@
+<div class="leaderboard-container">
+  <h2>Leaderboard</h2>
+
+  <div class="sort-tabs">
+    <button [class.active]="sortBy() === 'guesserRank'" (click)="setSortBy('guesserRank')">
+      Top Guessers
+    </button>
+    <button [class.active]="sortBy() === 'artistRank'" (click)="setSortBy('artistRank')">
+      Top Artists
+    </button>
+  </div>
+
+  @if (currentUserEntry())
+  {
+    <div class="current-user-card">
+      <div class="rank-badge">
+        #{{ sortBy() === 'guesserRank' ? currentUserEntry().guesserRank : currentUserEntry().artistRank }}
+      </div>
+      <div class="user-info">
+        <span class="username">You ({{ currentUserEntry().username }})</span>
+        <div class="stats">
+          @if (sortBy() === 'guesserRank')
+          {
+            <span>Guessed: <strong>{{ currentUserEntry().wordsGuessed }}</strong></span>
+          }
+          @else
+          {
+            <span>Win Rate: <strong>{{ currentUserEntry().artistWinRate.toFixed(0) }}%</strong></span>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (loading())
+  {
+    <div class="status"><i class="bx bx-loader-alt bx-spin"></i></div>
+  }
+  @else if (entries().length === 0)
+  {
+    <div class="status"><p>No leaderboard data available.</p></div>
+  }
+  @else
+  {
+    <div class="entries-list">
+      @for (entry of entries(); track entry.userId; let i = $index)
+      {
+        <div class="entry-card" [routerLink]="['/profile', entry.userId + '-' + entry.username]">
+          <div class="rank-badge" [class.top-three]="(currentPage() * 10 + i) < 3">
+            #{{ sortBy() === 'guesserRank' ? entry.guesserRank : entry.artistRank }}
+          </div>
+          <div class="user-details">
+            <span class="username">{{ entry.username }}</span>
+            <div class="stats">
+              @if (sortBy() === 'guesserRank')
+              {
+                <span>Guessed: <strong>{{ entry.wordsGuessed }}</strong></span>
+              }
+              @else
+              {
+                <span>Win Rate: <strong>{{ entry.artistWinRate.toFixed(0) }}%</strong></span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="pagination-controls">
+      <button class="page-btn" (click)="prevPage()" [disabled]="currentPage() === 0">
+        <i class="bx bx-chevron-left"></i> Prev
+      </button>
+      <span class="page-info">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage() >= totalPages() - 1">
+        Next <i class="bx bx-chevron-right"></i>
+      </button>
+    </div>
+  }
+</div>

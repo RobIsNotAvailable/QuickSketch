@@ -1,0 +1,15 @@
+@use '../../shared/styles/mixins' as *;
+
+.post-detail-container
+{
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+.status
+{
+  @include status-loader(60px, 2rem);
+}

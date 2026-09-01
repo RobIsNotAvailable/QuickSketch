@@ -41,7 +41,7 @@ public class CommentService
 
         if(!sketchRepo.hasUserCompletedSketch(userId, sketch.getId())) 
         {
-            throw new IllegalArgumentException("User has not completed the sketch and cannot comment");
+            throw new IllegalStateException("User has not completed the sketch and cannot comment");
         }
 
         Comment replyTo = 
@@ -103,17 +103,11 @@ public class CommentService
     @Transactional(readOnly = true)
     public Page<CommentResponse> getCommentReplies(Long commentId, Pageable pageable)
     {
-        Long userId = SecurityUtil.getCurrentUserId().orElseThrow(() ->
-            new SecurityException("User not authenticated"));
+        SecurityUtil.getCurrentUserId().orElseThrow(() -> new SecurityException("User not authenticated"));
 
         if(!repo.existsById(commentId))
         {
             throw new IllegalArgumentException(StringConstants.NOT_FOUND("Comment"));
-        }
-        
-        if(!sketchRepo.hasUserCompletedSketch(userId, commentId)) 
-        {
-            throw new IllegalArgumentException("User has not completed the sketch and cannot see comments");
         }
 
         return repo.findByReplyToIdOrderByCreatedAtDesc(commentId, pageable)
