@@ -4,6 +4,7 @@ import java.time.Instant;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -32,9 +33,9 @@ public class TokenService
     @Value("${JWT_KEY}")
     private String key;
 
-    private final RefreshTokenRepo refreshTokenRepo;
+    private final RefreshTokenRepo tokenRepo;
 
-    private static final int JWT_EXPIRATION_TIME = 1000 * 60 * 15; // 15 minuti
+    private static final int JWT_EXPIRATION_TIME = 1000 * 30 * 1; // 15 minuti
     private static final long REFRESH_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 30; // 30 giorni
 
     public String generateAccessToken(User user)
@@ -96,13 +97,19 @@ public class TokenService
     @Transactional
     public RefreshToken generateRefreshToken(User user)
     {
-        refreshTokenRepo.deleteByUserId(user.getId());
+        List<RefreshToken> userTokens = tokenRepo.findByUserIdOrderByExpirationAsc(user.getId());
+
+        while (userTokens.size() >= 5)
+        {
+            tokenRepo.delete(userTokens.get(0));
+            userTokens.remove(0);
+        }
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshToken.setExpiration(Instant.now().plus(REFRESH_EXPIRATION_TIME, MILLIS));
 
-        return refreshTokenRepo.save(refreshToken);
+        return tokenRepo.save(refreshToken);
     }
 }

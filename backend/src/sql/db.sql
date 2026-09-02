@@ -72,8 +72,7 @@ CREATE TABLE comments
 
 CREATE TABLE refresh_tokens
 (
-    id BIGSERIAL PRIMARY KEY,
-    token VARCHAR(255) NOT NULL,
+    token VARCHAR(255) PRIMARY KEY,
     expiration TIMESTAMP NOT NULL,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );

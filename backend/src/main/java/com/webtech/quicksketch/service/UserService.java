@@ -49,7 +49,7 @@ public class UserService
 
         String accessToken = tokenService.generateAccessToken(user);
         
-        tokenRepo.deleteByUserId(user.getId());
+        
         RefreshToken refreshToken = tokenService.generateRefreshToken(user);
         tokenRepo.save(refreshToken);
 
@@ -84,17 +84,18 @@ public class UserService
     }
 
     @Transactional
-    public void logout()
+    public void logout(RefreshTokenRequest request)
     {
-        Long userId = SecurityUtil.getCurrentUserId().orElseThrow(() ->
-            new SecurityException("User not authenticated"));
-        tokenRepo.deleteByUserId(userId);
+        RefreshToken token = tokenRepo.findById(request.refreshToken()).orElseThrow(() ->
+            new SecurityException(StringConstants.NOT_FOUND("Token")));
+
+        tokenRepo.delete(token);
     }
 
     @Transactional
     public AuthResponse refreshToken(RefreshTokenRequest request)
     {
-        RefreshToken token = tokenRepo.findByToken(request.refreshToken()).orElseThrow(() ->
+        RefreshToken token = tokenRepo.findById(request.refreshToken()).orElseThrow(() ->
                 new SecurityException(StringConstants.NOT_FOUND("Token")));
 
         if(token.isExpired())
@@ -106,7 +107,6 @@ public class UserService
         String newAccessToken = tokenService.generateAccessToken(user);
         RefreshToken newRefreshToken = tokenService.generateRefreshToken(user);
 
-        tokenRepo.save(newRefreshToken);
         return new AuthResponse(newAccessToken, newRefreshToken.getToken());
     }
 

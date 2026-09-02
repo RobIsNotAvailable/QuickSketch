@@ -52,7 +52,7 @@ export class AuthService
 
   logout(): void
   {
-      const token = this.getAccessToken();
+      const refreshToken = localStorage.getItem('refreshToken');
 
       this.isLoggingOut.set(true);
       localStorage.clear();
@@ -60,11 +60,9 @@ export class AuthService
       this.currentUserId.set(null);
       this.isLoggingOut.set(false);
 
-      if(token)
+      if(refreshToken)
       {
-          this.http.post(`${this.apiUrl}/logout`, {}, {
-              headers: { Authorization: `Bearer ${token}` }
-          }).subscribe
+          this.http.post(`${this.apiUrl}/logout`, { refreshToken }).subscribe
           ({
               next: () => {},
               error: () => {}

@@ -1,8 +1,11 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { ErrorService } from '../services/error.service';
+
+let isRefreshing = false;
+let refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) =>
 {
@@ -28,28 +31,58 @@ export const authInterceptor: HttpInterceptorFn = (req, next) =>
     {
       if (error.status === 401 && !req.url.includes('/auth/refresh') && !req.url.includes('/auth/login') && !req.url.includes('/auth/logout'))
       {
-        return authService.refreshToken().pipe(
-          switchMap((response) =>
-          {
-            const newReq = req.clone(
+        if (!isRefreshing)
+        {
+          isRefreshing = true;
+          refreshTokenSubject.next(null);
+
+          return authService.refreshToken().pipe(
+            switchMap((response) =>
             {
-              setHeaders:
+              isRefreshing = false;
+              refreshTokenSubject.next(response.jwt);
+              
+              const newReq = req.clone(
               {
-                Authorization: `Bearer ${response.jwt}`
+                setHeaders:
+                {
+                  Authorization: `Bearer ${response.jwt}`
+                }
+              });
+              return next(newReq);
+            }),
+            catchError((refreshError: HttpErrorResponse) =>
+            {
+              isRefreshing = false;
+              
+              if (!(refreshError.error?.message?.includes("Token not found") || refreshError.error === "Token not found"))
+              {
+                errorService.showError(refreshError.error);
               }
-            });
-            return next(newReq);
-          }),
-          catchError((refreshError: HttpErrorResponse) =>
-          {
-            const msg = refreshError.error;
-            
-            errorService.showError(msg);
-            authService.logout();
-            
-            return throwError(() => refreshError);
-          })
-        );
+              
+              authService.logout();
+              return throwError(() => refreshError);
+            })
+          );
+        }
+        else
+        {
+          return refreshTokenSubject.pipe(
+            filter(newToken => newToken !== null),
+            take(1),
+            switchMap((jwt) =>
+            {
+              const newReq = req.clone(
+              {
+                setHeaders:
+                {
+                  Authorization: `Bearer ${jwt}`
+                }
+              });
+              return next(newReq);
+            })
+          );
+        }
       }
 
       return throwError(() => error);
