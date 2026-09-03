@@ -10,6 +10,8 @@ public interface CommentRepo extends JpaRepository<Comment, Long>
 {
     int countBySketchId(Long sketchId);
 
+    int countByReplyToId(Long commentId);
+
     Page<Comment> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
     Page<Comment> findBySketchIdAndReplyToIsNullOrderByCreatedAtDesc(Long sketchId, Pageable pageable);

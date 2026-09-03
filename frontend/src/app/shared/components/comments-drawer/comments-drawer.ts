@@ -17,6 +17,8 @@ export class CommentsDrawer implements OnChanges
   @Input({ required: true }) sketchId!: number;
   @Input({ required: true }) isOpen: boolean = false;
   @Output() closeDrawer = new EventEmitter<void>();
+  @Output() commentAdded = new EventEmitter<number>();
+
 
   private commentService = inject(CommentService);
 
@@ -129,17 +131,48 @@ export class CommentsDrawer implements OnChanges
     ({
       next: (newComment) =>
       {
-        if (this.replyingTo())
+        if(this.replyingTo())
         {
           const parentId = this.replyingTo()!.id;
-          const currentReplies = this.replies()[parentId] || [];
-          this.replies.update(r => ({ ...r, [parentId]: [...currentReplies, newComment] }));
-          this.showReplies.update(sr => ({ ...sr, [parentId]: true }));
+          
+          if(!this.replies()[parentId])
+          {
+            this.loadReplies(parentId);
+          }
+          else
+          {
+            const currentReplies = this.replies()[parentId] || [];
+            
+            this.replies.update(r => 
+            {
+              return { ...r, [parentId]: [...currentReplies, newComment] };
+            });
+            
+            this.showReplies.update(sr => 
+            {
+              return { ...sr, [parentId]: true };
+            });
+          }
+          
+          this.comments.update(commentsList =>
+          {
+            return commentsList.map(c =>
+            {
+              if(c.id === parentId)
+              {
+                const currentCount = Number(c.totalReplies) || 0;
+                return { ...c, totalReplies: currentCount + 1 };
+              }
+              return c;
+            });
+          });
         }
         else
         {
           this.comments.update(c => [...c, newComment]);
         }
+
+        this.commentAdded.emit(newComment.totalComments);
 
         this.newCommentText.set('');
         this.replyingTo.set(null);

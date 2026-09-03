@@ -51,4 +51,8 @@ export class Post extends CommentsController implements OnInit
     }
   }
 
+  updateCommentCount(newCount: number): void
+  {
+    this.sketch.update(s => s ? { ...s, commentsCount: newCount } : null);
+  }
 }

@@ -39,7 +39,8 @@
   <app-comments-drawer
     [sketchId]="activeSketchId()"
     [isOpen]="isCommentsDrawerOpen()"
-    (closeDrawer)="closeComments()">
+    (closeDrawer)="closeComments()"
+    (commentAdded)="updateCommentCount($event)">
   </app-comments-drawer>
 
 </div>

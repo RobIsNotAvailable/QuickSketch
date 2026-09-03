@@ -32,17 +32,20 @@
               
               <div class="comment-actions">
                 <button class="btn-text" (click)="setReply(comment.id, comment.author.username)">Reply</button>
-                <button class="btn-text" (click)="loadReplies(comment.id)">
-                  @if (loadingReplies()[comment.id])
-                  {
-                    <i class="bx bx-loader-alt bx-spin"></i>
-                  }
-                  @else
-                  {
-                    {{ showReplies()[comment.id] ? 'Hide replies' : 'See replies' }}
-                  }
-                </button>
-              </div>
+                @if (comment.totalReplies > 0)
+                {
+                  <button class="btn-text" (click)="loadReplies(comment.id)">
+                    @if (loadingReplies()[comment.id])
+                    {
+                      <i class="bx bx-loader-alt bx-spin"></i>
+                    }
+                    @else
+                    {
+                      {{ showReplies()[comment.id] ? 'Hide replies' : 'See replies (' + comment.totalReplies + ')' }}
+                    }
+                  </button>
+                }
+            </div>
 
               @if (showReplies()[comment.id] && replies()[comment.id])
               {

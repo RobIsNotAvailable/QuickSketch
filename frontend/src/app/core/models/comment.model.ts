@@ -7,7 +7,9 @@ export interface CommentResponse
   createdAt: string;
   author: UserSummaryResponse;
   sketchId: number;
+  totalComments: number;
   replyToId?: number;
+  totalReplies: number;
 }
 
 export interface CommentRequest

@@ -8,5 +8,7 @@ public record CommentResponse(
     Instant createdAt,
     UserSummaryResponse author,
     Long sketchId,
-    Long replyToId
+    int totalComments,
+    Long replyToId,
+    int totalReplies
 ) {}

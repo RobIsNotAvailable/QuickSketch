@@ -116,6 +116,6 @@ public class CommentService
 
     private CommentResponse mapToResponse(Comment comment)
     {
-        return new CommentResponse(comment.getId(), comment.getText(), comment.getCreatedAt(), new UserSummaryResponse(comment.getUser().getId(), comment.getUser().getUsername()), comment.getSketch().getId(), comment.getReplyTo() != null ? comment.getReplyTo().getId() : null);
+        return new CommentResponse(comment.getId(), comment.getText(), comment.getCreatedAt(), new UserSummaryResponse(comment.getUser().getId(), comment.getUser().getUsername()), comment.getSketch().getId(), repo.countBySketchId(comment.getSketch().getId()), comment.getReplyTo() != null ? comment.getReplyTo().getId() : null, repo.countByReplyToId(comment.getId()));
     }
 }

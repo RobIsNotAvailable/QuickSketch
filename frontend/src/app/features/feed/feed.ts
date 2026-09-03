@@ -104,4 +104,13 @@ export class Feed extends CommentsController implements OnInit
       }
     });
   }
+
+  updateCommentCount(newCount: number): void
+  {
+    this.sketches.update(sketches => 
+      sketches.map(s => 
+        s.id === this.activeSketchId() ? { ...s, commentsCount: newCount } : s
+      )
+    );
+  }
 }
