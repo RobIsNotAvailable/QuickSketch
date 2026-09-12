@@ -1,24 +1,34 @@
 services:
   db:
+    env_file: ./backend/.env
     image: postgres:15
     environment:
-      POSTGRES_USER: quicksketch_user
-      POSTGRES_PASSWORD: LePassword1
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PW}
       POSTGRES_DB: quicksketch
     ports:
       - "5432:5432"
-
+    volumes:
+      - ./backend/src/sql/db.sql:/docker-entrypoint-initdb.d/01-db.sql:ro
+      - ./backend/src/sql/demodata.sql:/docker-entrypoint-initdb.d/02-demodata.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d quicksketch"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      
   backend:
     build: ./backend
+    env_file: ./backend/.env
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/quicksketch
-      - SPRING_DATASOURCE_USERNAME=quicksketch_user
-      - SPRING_DATASOURCE_PASSWORD=LePassword1
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - JWT_KEY=Dock3rKeYv3ryL0nGcr45y80m80C1447
-      - FRONTEND_URL=http://localhost:4200
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PW}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - JWT_KEY=${JWT_KEY}
+      - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
       - db
 

@@ -1,21 +1,25 @@
-to run the whole application:
-prerequisites:
-    -have docker installed
+# Quicksketch
 
-launch `docker compose up --build` in the root directory
+A social canvas-drawing web application for creating and sharing sketches.
 
-to run the backend:
-prerequisites:
-    -JVM version 21 or newer
-    -a running PostgreSQL database
-    -a .env file following the .env.example template, with your db credentials and an arbitrary JWT key
+Project currently in active development. You may encounter bugs or features in progress.
 
-launch `./mvnw spring-boot:run` in the backend directory
+Live Demo: https://quicksketch-wp6.pages.dev
 
-to run the frontend:
-prerequisites:
-    -Node.js version 24 or newer
+## Technologies Used
 
-cd frontend
-launch `npm install`
-launch `npm start`
+- Frontend: Angular, TypeScript
+- Backend: Java Spring Boot, Spring Security, JWT
+- Database: PostgreSQL
+- DevOps: Docker & Docker Compose
+
+## Local Setup
+
+To run the full application locally using Docker:
+
+1. Clone the repository and navigate to the project root directory.
+2. Configure the `.env` file inside the `backend/` directory.
+3. Start the containers using the command:
+
+```bash
+docker compose up --build
