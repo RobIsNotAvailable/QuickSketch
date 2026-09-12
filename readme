@@ -1,0 +1,21 @@
+to run the whole application:
+prerequisites:
+    -have docker installed
+
+launch `docker compose up --build` in the root directory
+
+to run the backend:
+prerequisites:
+    -JVM version 21 or newer
+    -a running PostgreSQL database
+    -a .env file following the .env.example template, with your db credentials and an arbitrary JWT key
+
+launch `./mvnw spring-boot:run` in the backend directory
+
+to run the frontend:
+prerequisites:
+    -Node.js version 24 or newer
+
+cd frontend
+launch `npm install`
+launch `npm start`
